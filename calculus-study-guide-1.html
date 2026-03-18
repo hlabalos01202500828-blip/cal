@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diff Calc Survival Guide 📐</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f1a;
+  --surface: #13162a;
+  --surface2: #1a1e35;
+  --border: #2a2f52;
+  --accent: #f5a623;
+  --accent2: #e05c5c;
+  --accent3: #5ce0c2;
+  --accent4: #9b7fe8;
+  --text: #e8eaf0;
+  --text-dim: #8890b0;
+  --correct: #4ade80;
+  --wrong: #f87171;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, #0d0f1a 0%, #1a1035 50%, #0d1a2a 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 1.5rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--accent), #ff9f5a, var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+header p { color: var(--text-dim); font-size: 0.85rem; margin-top: 0.2rem; }
+
+/* PROGRESS */
+.progress-bar-wrap {
+  background: var(--border);
+  height: 4px;
+  border-radius: 2px;
+  margin-top: 0.8rem;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  width: 0%;
+  transition: width 0.5s ease;
+  border-radius: 2px;
+}
+.progress-label { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+/* TABS */
+.tab-nav {
+  display: flex;
+  gap: 0.3rem;
+  padding: 1rem 2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.tab-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+.tab-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0d0f1a;
+  font-weight: 600;
+}
+
+/* MAIN */
+.content { max-width: 900px; margin: 0 auto; padding: 2rem; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* SECTION CARDS */
+.section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.section-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.section-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent3);
+  margin: 1rem 0 0.5rem;
+}
+
+/* CONCEPT BOX */
+.concept {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent4);
+  border-radius: 0 8px 8px 0;
+  padding: 1rem 1.2rem;
+  margin: 0.8rem 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.concept .formula {
+  font-family: 'DM Mono', monospace;
+  background: rgba(155, 127, 232, 0.1);
+  border: 1px solid rgba(155, 127, 232, 0.3);
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: #c4b5f7;
+  overflow-x: auto;
+}
+.tip {
+  background: rgba(245, 166, 35, 0.08);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin: 0.8rem 0;
+  font-size: 0.85rem;
+}
+.tip::before { content: "💡 "; }
+
+/* PROBLEM SET */
+.problem-set-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.badge {
+  background: var(--accent4);
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.badge.easy { background: #2d6a4f; color: #d8f3dc; }
+.badge.medium { background: #7b4f00; color: #ffe8b0; }
+.badge.hard { background: #6b0000; color: #ffd0d0; }
+
+.problem {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 0.8rem;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.problem:hover { border-color: var(--accent4); }
+.problem-q {
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.problem-q .num {
+  font-family: 'DM Mono', monospace;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-width: 2rem;
+  padding-top: 0.1rem;
+}
+.problem-q .text { flex: 1; }
+.toggle-icon {
+  color: var(--text-dim);
+  font-size: 1rem;
+  transition: transform 0.2s;
+  min-width: 1.2rem;
+  text-align: center;
+}
+.problem.open .toggle-icon { transform: rotate(180deg); }
+.problem-a {
+  display: none;
+  padding: 0.8rem 1rem 1rem 3rem;
+  background: rgba(92, 224, 194, 0.05);
+  border-top: 1px solid var(--border);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--accent3);
+}
+.problem-a .step {
+  margin-bottom: 0.4rem;
+  color: var(--text);
+}
+.problem-a .step strong { color: var(--accent3); font-family: 'DM Mono', monospace; }
+.problem-a .ans {
+  font-family: 'DM Mono', monospace;
+  font-weight: 700;
+  color: var(--correct);
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+.problem.open .problem-a { display: block; }
+
+/* QUIZ */
+.quiz-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.quiz-q { font-size: 1rem; font-weight: 500; margin-bottom: 1rem; line-height: 1.6; }
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+.quiz-opt {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  text-align: left;
+  color: var(--text);
+}
+.quiz-opt:hover { border-color: var(--accent4); background: rgba(155, 127, 232, 0.1); }
+.quiz-opt.correct { background: rgba(74, 222, 128, 0.1); border-color: var(--correct); color: var(--correct); }
+.quiz-opt.wrong { background: rgba(248, 113, 113, 0.1); border-color: var(--wrong); color: var(--wrong); }
+.quiz-opt:disabled { cursor: default; }
+.quiz-feedback {
+  margin-top: 0.8rem;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  display: none;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: rgba(74, 222, 128, 0.1); color: var(--correct); }
+.quiz-feedback.wrong { background: rgba(248, 113, 113, 0.1); color: var(--wrong); }
+.quiz-score {
+  text-align: center;
+  font-size: 1.5rem;
+  font-family: 'Playfair Display', serif;
+  color: var(--accent);
+  margin: 1rem 0;
+}
+
+/* FLASHCARDS */
+.flashcard-area { perspective: 1000px; }
+.flashcard {
+  background: transparent;
+  width: 100%;
+  min-height: 180px;
+  cursor: pointer;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  min-height: 180px;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+.card-front {
+  background: linear-gradient(135deg, var(--surface2), #1a1035);
+  border: 1px solid var(--accent4);
+}
+.card-back {
+  background: linear-gradient(135deg, #0d1a10, #0d1035);
+  border: 1px solid var(--accent3);
+  transform: rotateY(180deg);
+}
+.card-front .term {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--accent);
+}
+.card-back .def {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+}
+.card-hint { font-size: 0.7rem; color: var(--text-dim); margin-top: 0.5rem; }
+.fc-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.fc-nav button {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.fc-nav button:hover { border-color: var(--accent); color: var(--accent); }
+.fc-counter { font-size: 0.85rem; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin: 0.8rem 0;
+}
+th {
+  background: var(--surface2);
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  color: var(--accent3);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+}
+td {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  color: var(--text);
+}
+tr:hover td { background: var(--surface2); }
+
+/* UTIL */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+.btn {
+  background: var(--accent);
+  color: #0d0f1a;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  display: inline-block;
+}
+.btn:hover { background: #ffc04d; transform: translateY(-1px); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--accent4);
+  color: var(--accent4);
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.btn-outline:hover { background: rgba(155,127,232,0.1); }
+.tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-right: 0.3rem;
+  margin-bottom: 0.3rem;
+  font-family: 'DM Mono', monospace;
+}
+.tag-blue { background: rgba(92,155,224,0.2); color: #5c9be0; border: 1px solid rgba(92,155,224,0.3); }
+.tag-green { background: rgba(92,224,194,0.2); color: var(--accent3); border: 1px solid rgba(92,224,194,0.3); }
+.tag-orange { background: rgba(245,166,35,0.2); color: var(--accent); border: 1px solid rgba(245,166,35,0.3); }
+.divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+.emoji-big { font-size: 2rem; }
+.alert {
+  background: rgba(224,92,92,0.1);
+  border: 1px solid rgba(224,92,92,0.3);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  font-size: 0.85rem;
+  margin: 0.8rem 0;
+  color: #ff9f9f;
+}
+.alert::before { content: "⚠️ "; }
+
+/* FILTER BUTTONS */
+.filter-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.filter-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); }
+
+/* SEARCH */
+.search-box {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box:focus { border-color: var(--accent4); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📐 Differential Calculus — Survival Guide</h1>
+  <p>Your complete study companion for the retake. You got this! 💪</p>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="globalProgress"></div>
+  </div>
+  <div class="progress-label" id="progressLabel">0 problems solved</div>
+</header>
+
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab(0)">📘 Fundamentals</button>
+  <button class="tab-btn" onclick="switchTab(1)">🎯 Limits</button>
+  <button class="tab-btn" onclick="switchTab(2)">🔥 Derivatives</button>
+  <button class="tab-btn" onclick="switchTab(3)">〰️ Concavity</button>
+  <button class="tab-btn" onclick="switchTab(4)">⛰️ Max & Min</button>
+  <button class="tab-btn" onclick="switchTab(5)">⏱️ Related Rates</button>
+  <button class="tab-btn" onclick="switchTab(6)">🃏 Flashcards</button>
+  <button class="tab-btn" onclick="switchTab(7)">🧪 Quiz Mode</button>
+</nav>
+
+<div class="content">
+
+<!-- ==================== TAB 0: FUNDAMENTALS ==================== -->
+<div class="tab-panel active" id="tab0">
+
+<div class="section-card">
+  <h2>📘 Algebra Fundamentals</h2>
+  <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:1rem">Before calculus, you need to be solid with these. No skipping! 🚫</p>
+
+  <h3>Exponent Rules</h3>
+  <div class="concept">
+    <div class="formula">x^a · x^b = x^(a+b)</div>
+    <div class="formula">(x^a)^b = x^(ab)</div>
+    <div class="formula">x^(-n) = 1/x^n</div>
+    <div class="formula">x^(1/n) = ⁿ√x &nbsp;&nbsp; x^(m/n) = ⁿ√(x^m)</div>
+    <div class="formula">x^0 = 1 (x ≠ 0)</div>
+  </div>
+
+  <h3>Factoring Techniques</h3>
+  <div class="concept">
+    <strong>Difference of Squares:</strong>
+    <div class="formula">a² - b² = (a+b)(a-b)</div>
+    <strong>Perfect Square Trinomial:</strong>
+    <div class="formula">a² + 2ab + b² = (a+b)² &nbsp;&nbsp; a² - 2ab + b² = (a-b)²</div>
+    <strong>Sum/Difference of Cubes:</strong>
+    <div class="formula">a³ + b³ = (a+b)(a² - ab + b²)</div>
+    <div class="formula">a³ - b³ = (a-b)(a² + ab + b²)</div>
+    <strong>Grouping / AC Method:</strong>
+    <div class="formula">ax² + bx + c → find two numbers that multiply to ac and add to b</div>
+  </div>
+
+  <h3>Rational Expressions</h3>
+  <div class="concept">
+    <div class="formula">a/b · c/d = ac/bd</div>
+    <div class="formula">a/b ÷ c/d = a/b · d/c = ad/bc</div>
+    <div class="formula">a/b + c/d = (ad + bc)/bd</div>
+    <div class="tip">To simplify a complex fraction: multiply numerator AND denominator by the LCD of all smaller fractions inside.</div>
+  </div>
+
+  <h3>Rationalizing</h3>
+  <div class="concept">
+    To eliminate a radical from the denominator, multiply by its conjugate:
+    <div class="formula">1/(√a + √b) × (√a - √b)/(√a - √b) = (√a - √b)/(a - b)</div>
+    <div class="tip">This is HUGE for limit problems! Whenever you see 0/0 and there's a radical, try rationalizing.</div>
+  </div>
+
+  <h3>Logarithm Rules</h3>
+  <div class="concept">
+    <div class="formula">log(ab) = log a + log b</div>
+    <div class="formula">log(a/b) = log a - log b</div>
+    <div class="formula">log(a^n) = n·log a</div>
+    <div class="formula">log_b(b) = 1 &nbsp;&nbsp; log_b(1) = 0</div>
+    <div class="formula">ln(e^x) = x &nbsp;&nbsp; e^(ln x) = x</div>
+  </div>
+</div>
+
+<div class="section-card">
+  <h2>📐 Trigonometry Fundamentals</h2>
+
+  <h3>Basic Trig Definitions (SOH-CAH-TOA)</h3>
+  <div class="concept">
+    <div class="formula">sin θ = opposite/hypotenuse &nbsp;&nbsp; csc θ = 1/sin θ</div>
+    <div class="formula">cos θ = adjacent/hypotenuse &nbsp;&nbsp; sec θ = 1/cos θ</div>
+    <div class="formula">tan θ = opposite/adjacent = sin θ/cos θ &nbsp;&nbsp; cot θ = cos θ/sin θ</div>
+  </div>
+
+  <h3>Unit Circle — Key Values (MEMORIZE THIS!)</h3>
+  <table>
+    <tr><th>Angle</th><th>Degrees</th><th>sin θ</th><th>cos θ</th><th>tan θ</th></tr>
+    <tr><td>0</td><td>0°</td><td>0</td><td>1</td><td>0</td></tr>
+    <tr><td>π/6</td><td>30°</td><td>1/2</td><td>√3/2</td><td>1/√3</td></tr>
+    <tr><td>π/4</td><td>45°</td><td>√2/2</td><td>√2/2</td><td>1</td></tr>
+    <tr><td>π/3</td><td>60°</td><td>√3/2</td><td>1/2</td><td>√3</td></tr>
+    <tr><td>π/2</td><td>90°</td><td>1</td><td>0</td><td>undefined</td></tr>
+    <tr><td>π</td><td>180°</td><td>0</td><td>-1</td><td>0</td></tr>
+    <tr><td>3π/2</td><td>270°</td><td>-1</td><td>0</td><td>undefined</td></tr>
+    <tr><td>2π</td><td>360°</td><td>0</td><td>1</td><td>0</td></tr>
+  </table>
+  <div class="tip">Memory trick for sin: 0°→√0/2, 30°→√1/2, 45°→√2/2, 60°→√3/2, 90°→√4/2. Just √n/2 going up!</div>
+
+  <h3>Pythagorean Identities</h3>
+  <div class="concept">
+    <div class="formula">sin²θ + cos²θ = 1</div>
+    <div class="formula">1 + tan²θ = sec²θ</div>
+    <div class="formula">1 + cot²θ = csc²θ</div>
+  </div>
+
+  <h3>Other Key Identities</h3>
+  <div class="concept">
+    <div class="formula">sin(2θ) = 2 sin θ cos θ</div>
+    <div class="formula">cos(2θ) = cos²θ - sin²θ = 1 - 2sin²θ = 2cos²θ - 1</div>
+    <div class="formula">sin²θ = (1 - cos 2θ)/2 &nbsp;&nbsp; cos²θ = (1 + cos 2θ)/2</div>
+  </div>
+</div>
+
+<div class="section-card">
+  <h2>📝 Algebra Problem Set <span class="badge medium">60 Problems</span></h2>
+  <div class="tip">Click any problem to reveal the solution steps!</div>
+
+  <h3>Exponent Rules</h3>
+  <div id="alg-probs"></div>
+
+  <h3>Factoring</h3>
+  <div id="factor-probs"></div>
+
+  <h3>Simplifying Expressions</h3>
+  <div id="simp-probs"></div>
+
+  <h3>Trigonometry Problems</h3>
+  <div id="trig-probs"></div>
+</div>
+
+</div>
+<!-- end tab0 -->
+
+<!-- ==================== TAB 1: LIMITS ==================== -->
+<div class="tab-panel" id="tab1">
+
+<div class="section-card">
+  <h2>🎯 Limits — The Big Picture</h2>
+  <div class="concept">
+    A <strong>limit</strong> describes the value a function <em>approaches</em> as the input approaches some value — even if the function is never defined there!
+    <div class="formula">lim[x→a] f(x) = L</div>
+    This says: as x gets closer and closer to a, f(x) gets closer and closer to L.
+    <div class="tip">Limits are about the journey, NOT the destination. f(a) might not even exist but the limit can still exist!</div>
+  </div>
+
+  <h3>One-Sided Limits</h3>
+  <div class="concept">
+    <div class="formula">lim[x→a⁻] f(x) — Left-hand limit (x approaches a from the LEFT)</div>
+    <div class="formula">lim[x→a⁺] f(x) — Right-hand limit (x approaches a from the RIGHT)</div>
+    <div class="formula">lim[x→a] f(x) exists ⟺ lim[x→a⁻] f(x) = lim[x→a⁺] f(x)</div>
+    <div class="tip">If left limit ≠ right limit, the two-sided limit does NOT exist (DNE)!</div>
+  </div>
+
+  <h3>Methods for Evaluating Limits</h3>
+  <div class="concept">
+    <strong>1. Direct Substitution</strong> — just plug in x = a. Works when f is continuous at a.
+    <div class="formula">lim[x→2] (x² + 3x) = 4 + 6 = 10 ✓</div>
+    <strong>2. Factor & Cancel</strong> — for 0/0 indeterminate form with polynomials.
+    <div class="formula">lim[x→3] (x²-9)/(x-3) = lim (x+3)(x-3)/(x-3) = lim (x+3) = 6</div>
+    <strong>3. Rationalize</strong> — multiply by conjugate when radicals cause 0/0.
+    <div class="formula">lim[x→0] (√(x+1)-1)/x · (√(x+1)+1)/(√(x+1)+1) = lim x/(x(√(x+1)+1)) = 1/2</div>
+    <strong>4. Trig Identities</strong> — rewrite using sin/cos identities.
+    <strong>5. L'Hôpital's Rule</strong> — for 0/0 or ∞/∞: take derivative of top and bottom separately!
+    <div class="formula">lim f(x)/g(x) [0/0 form] = lim f'(x)/g'(x)</div>
+  </div>
+
+  <h3>Special Trig Limits (MEMORIZE!)</h3>
+  <div class="concept">
+    <div class="formula">lim[x→0] sin(x)/x = 1</div>
+    <div class="formula">lim[x→0] (1 - cos x)/x = 0</div>
+    <div class="formula">lim[x→0] tan(x)/x = 1</div>
+    <div class="formula">lim[x→0] (1 - cos x)/x² = 1/2</div>
+    <div class="tip">These are used ALL the time. When you see sin(something)/something, you can bet the answer is 1!</div>
+  </div>
+
+  <h3>Limits at Infinity</h3>
+  <div class="concept">
+    <strong>Polynomial/Rational Functions — look at leading terms only!</strong>
+    <div class="formula">lim[x→∞] (3x² + 5x) / (2x² - 1) = 3/2 (same degree → ratio of leading coefficients)</div>
+    <div class="formula">lim[x→∞] (5x + 1) / (x² - 3) = 0 (numerator degree &lt; denominator)</div>
+    <div class="formula">lim[x→∞] (x³ + 1) / (2x + 1) = ∞ (numerator degree &gt; denominator)</div>
+    <strong>Horizontal Asymptote:</strong> y = L if lim[x→±∞] f(x) = L
+    <div class="formula">lim[x→∞] 1/x = 0 &nbsp;&nbsp; lim[x→∞] 1/x^n = 0 (n > 0)</div>
+  </div>
+
+  <h3>Infinite Limits (Vertical Asymptotes)</h3>
+  <div class="concept">
+    <div class="formula">lim[x→0⁺] 1/x = +∞ &nbsp;&nbsp; lim[x→0⁻] 1/x = -∞</div>
+    Occurs when denominator → 0 but numerator doesn't. Check sign from each side!
+    <div class="tip">If f(x) → ∞ from both sides: the limit is ∞ (DNE). If ∞ from one side and -∞ from the other: limit is DNE.</div>
+  </div>
+
+  <h3>The Squeeze Theorem</h3>
+  <div class="concept">
+    If g(x) ≤ f(x) ≤ h(x) near a, and lim g(x) = lim h(x) = L, then lim f(x) = L.
+    <div class="formula">Classic: -1 ≤ sin(x) ≤ 1 so -x² ≤ x²sin(1/x) ≤ x²</div>
+    <div class="formula">⟹ lim[x→0] x²sin(1/x) = 0</div>
+  </div>
+</div>
+
+<div class="section-card">
+  <h2>📝 Limits Problem Set <span class="badge medium">100+ Problems</span></h2>
+  <div id="limit-probs"></div>
+</div>
+
+</div>
+<!-- end tab1 -->
+
+<!-- ==================== TAB 2: DERIVATIVES ==================== -->
+<div class="tab-panel" id="tab2">
+
+<div class="section-card">
+  <h2>🔥 Derivatives — The Core of Calculus</h2>
+
+  <h3>Definition of the Derivative</h3>
+  <div class="concept">
+    The derivative is the instantaneous rate of change (slope of the tangent line):
+    <div class="formula">f'(x) = lim[h→0] [f(x+h) - f(x)] / h</div>
+    <div class="formula">Also written as: dy/dx, Df(x), ẏ, y'</div>
+    <div class="tip">The derivative tells you how fast the function is changing at any point. Positive → increasing, Negative → decreasing, Zero → flat (possibly a max or min).</div>
+  </div>
+
+  <h3>Basic Differentiation Rules</h3>
+  <div class="concept">
+    <div class="formula">d/dx [c] = 0 (constant rule)</div>
+    <div class="formula">d/dx [x^n] = nx^(n-1) (power rule)</div>
+    <div class="formula">d/dx [cf(x)] = c·f'(x) (constant multiple)</div>
+    <div class="formula">d/dx [f ± g] = f' ± g' (sum/difference)</div>
+  </div>
+
+  <h3>Product Rule</h3>
+  <div class="concept">
+    <div class="formula">d/dx [f·g] = f'g + fg'</div>
+    Memory: <strong>"first times derivative of second, plus second times derivative of first"</strong>
+    <div class="formula">Example: d/dx [x²·sin x] = 2x·sin x + x²·cos x</div>
+  </div>
+
+  <h3>Quotient Rule</h3>
+  <div class="concept">
+    <div class="formula">d/dx [f/g] = (f'g - fg') / g²</div>
+    Memory: <strong>"low d-high minus high d-low, over low squared below"</strong>
+    <div class="formula">Example: d/dx [x²/cos x] = (2x·cos x - x²·(-sin x)) / cos²x</div>
+    <div class="tip">Don't forget the MINUS sign! And it's always over g², not g.</div>
+  </div>
+
+  <h3>Chain Rule</h3>
+  <div class="concept">
+    For composite functions f(g(x)):
+    <div class="formula">d/dx [f(g(x))] = f'(g(x)) · g'(x)</div>
+    Memory: <strong>"derivative of outside (leaving inside alone) TIMES derivative of inside"</strong>
+    <div class="formula">Example: d/dx [sin(x²)] = cos(x²) · 2x = 2x·cos(x²)</div>
+    <div class="formula">Example: d/dx [(3x+1)^5] = 5(3x+1)^4 · 3 = 15(3x+1)^4</div>
+    <div class="tip">Chain rule is used when you have a function INSIDE another function. Always ask: is there an inner function?</div>
+  </div>
+
+  <h3>Derivatives of Trig Functions</h3>
+  <div class="concept">
+    <div class="formula">d/dx [sin x] = cos x &nbsp;&nbsp;&nbsp; d/dx [cos x] = -sin x</div>
+    <div class="formula">d/dx [tan x] = sec²x &nbsp;&nbsp; d/dx [cot x] = -csc²x</div>
+    <div class="formula">d/dx [sec x] = sec x·tan x &nbsp;&nbsp; d/dx [csc x] = -csc x·cot x</div>
+    <div class="tip">The "co-" functions (cos, cot, csc) always have a NEGATIVE derivative. Remember that!</div>
+  </div>
+
+  <h3>Derivatives of Exponential & Log Functions</h3>
+  <div class="concept">
+    <div class="formula">d/dx [eˣ] = eˣ &nbsp;&nbsp; d/dx [aˣ] = aˣ·ln(a)</div>
+    <div class="formula">d/dx [ln x] = 1/x &nbsp;&nbsp; d/dx [log_a x] = 1/(x·ln a)</div>
+    <div class="tip">eˣ is its own derivative — the only function like that in math! Incredibly special.</div>
+  </div>
+
+  <h3>Implicit Differentiation</h3>
+  <div class="concept">
+    When y is not isolated, differentiate both sides w.r.t. x, treating y as a function of x:
+    <div class="formula">d/dx [y²] = 2y · dy/dx (chain rule — y is inside)</div>
+    <div class="formula">Example: x² + y² = 25 → 2x + 2y(dy/dx) = 0 → dy/dx = -x/y</div>
+    <div class="tip">Every time you differentiate a y-term, multiply by dy/dx (chain rule). Then solve for dy/dx at the end.</div>
+  </div>
+
+  <h3>Higher Order Derivatives</h3>
+  <div class="concept">
+    <div class="formula">f''(x) = d²y/dx² = derivative of f'(x)</div>
+    <div class="formula">f'''(x) = d³y/dx³ = derivative of f''(x)</div>
+    Physical meaning: f'(x) = velocity, f''(x) = acceleration (if f is position).
+  </div>
+</div>
+
+<div class="section-card">
+  <h2>📝 Derivatives Problem Set <span class="badge medium">100+ Problems</span></h2>
+  <div id="deriv-probs"></div>
+</div>
+
+</div>
+
+<!-- ==================== TAB 3: CONCAVITY ==================== -->
+<div class="tab-panel" id="tab3">
+
+<div class="section-card">
+  <h2>〰️ Concavity & Inflection Points</h2>
+
+  <h3>What is Concavity?</h3>
+  <div class="concept">
+    Concavity describes whether a curve "cups upward" or "cups downward."
+    <div class="formula">Concave UP (∪): f''(x) > 0 — like a bowl, can hold water</div>
+    <div class="formula">Concave DOWN (∩): f''(x) < 0 — like an upside-down bowl</div>
+    <div class="tip">If you're on a concave up section of a road, you'd feel pressed into your seat (accelerating up). Concave down = you'd float out of your seat.</div>
+  </div>
+
+  <h3>Second Derivative Test for Concavity</h3>
+  <div class="concept">
+    <strong>Steps:</strong>
+    <br>1. Find f''(x)
+    <br>2. Find where f''(x) = 0 or f''(x) is undefined
+    <br>3. Test intervals using a sign chart for f''(x)
+    <br>4. Where f''(x) > 0 → concave up; f''(x) &lt; 0 → concave down
+  </div>
+
+  <h3>Inflection Points</h3>
+  <div class="concept">
+    An <strong>inflection point</strong> is where the concavity CHANGES (from up to down or vice versa).
+    <div class="formula">Necessary condition: f''(x) = 0 or f''(x) DNE at that point</div>
+    <div class="formula">But f''(c) = 0 does NOT guarantee an inflection point — the sign must actually CHANGE!</div>
+    <div class="tip">Inflection points are like the transition between an uphill curve and a downhill curve on a rollercoaster. The "S-curve" shape has an inflection point in the middle.</div>
+  </div>
+
+  <h3>How Concavity Relates to Derivatives</h3>
+  <div class="concept">
+    <div class="formula">f'(x) increasing ↔ f''(x) > 0 ↔ Concave up</div>
+    <div class="formula">f'(x) decreasing ↔ f''(x) < 0 ↔ Concave down</div>
+    This means: on a concave up section, the tangent line slopes are getting steeper (more positive or less negative).
+  </div>
+
+  <h3>Complete Curve Sketching Strategy</h3>
+  <div class="concept">
+    <strong>Step 1:</strong> Domain (where is f defined?)<br>
+    <strong>Step 2:</strong> Intercepts (f(0) and f(x)=0)<br>
+    <strong>Step 3:</strong> Find f'(x) → critical points (where f'=0 or DNE)<br>
+    <strong>Step 4:</strong> Sign chart of f'(x) → intervals increasing/decreasing<br>
+    <strong>Step 5:</strong> Find f''(x) → find where f''=0<br>
+    <strong>Step 6:</strong> Sign chart of f''(x) → concavity + inflection points<br>
+    <strong>Step 7:</strong> Asymptotes (lim as x→∞ or at discontinuities)<br>
+    <strong>Step 8:</strong> Put it all together and sketch!
+  </div>
+</div>
+
+<div class="section-card">
+  <h2>📝 Concavity Problem Set <span class="badge medium">80+ Problems</span></h2>
+  <div id="concavity-probs"></div>
+</div>
+
+</div>
+
+<!-- ==================== TAB 4: MAX & MIN ==================== -->
+<div class="tab-panel" id="tab4">
+
+<div class="section-card">
+  <h2>⛰️ Maxima & Minima</h2>
+
+  <h3>Definitions</h3>
+  <div class="concept">
+    <div class="formula">Local (Relative) Maximum: f(c) ≥ f(x) for all x near c</div>
+    <div class="formula">Local (Relative) Minimum: f(c) ≤ f(x) for all x near c</div>
+    <div class="formula">Absolute (Global) Max/Min: the largest/smallest value over the entire domain</div>
+    <div class="tip">Local max/min are like hilltops and valley bottoms along a hike. The absolute max is the highest peak, absolute min is the lowest valley.</div>
+  </div>
+
+  <h3>Critical Points</h3>
+  <div class="concept">
+    A point c is a <strong>critical point</strong> if f'(c) = 0 OR f'(c) is undefined.
+    <div class="alert">ALL local extrema occur at critical points, but NOT all critical points are local extrema!</div>
+    <div class="tip">Example: f(x) = x³ has f'(0) = 0, but x=0 is NOT a local extremum — it's an inflection point!</div>
+  </div>
+
+  <h3>First Derivative Test</h3>
+  <div class="concept">
+    At a critical point c:
+    <br>• If f' changes from <strong>+ to −</strong>: LOCAL MAXIMUM
+    <br>• If f' changes from <strong>− to +</strong>: LOCAL MINIMUM
+    <br>• If f' doesn't change sign: NEITHER (inflection point)
+    <div class="tip">Make a sign chart for f'(x)! Test a number in each interval around the critical points.</div>
+  </div>
+
+  <h3>Second Derivative Test</h3>
+  <div class="concept">
+    At a critical point c where f'(c) = 0:
+    <div class="formula">If f''(c) > 0 → Local MINIMUM (concave up = valley)</div>
+    <div class="formula">If f''(c) < 0 → Local MAXIMUM (concave down = hill)</div>
+    <div class="formula">If f''(c) = 0 → INCONCLUSIVE (use first derivative test instead)</div>
+  </div>
+
+  <h3>Absolute Extrema on a Closed Interval [a,b]</h3>
+  <div class="concept">
+    <strong>Closed Interval Method (Extreme Value Theorem):</strong>
+    <br>1. Find all critical points in (a, b)
+    <br>2. Evaluate f at all critical points and at endpoints a and b
+    <br>3. The largest value is the absolute max, smallest is the absolute min
+    <div class="tip">Don't forget the endpoints! Many students find all the critical points but forget to check f(a) and f(b).</div>
+  </div>
+
+  <h3>Optimization Problems</h3>
+  <div class="concept">
+    <strong>Strategy:</strong>
+    <br>1. Read carefully. Draw a diagram if possible.
+    <br>2. Identify what you want to MAXIMIZE or MINIMIZE.
+    <br>3. Write the objective function (what you're optimizing).
+    <br>4. Use constraint equations to reduce to ONE variable.
+    <br>5. Take derivative, set equal to 0, solve.
+    <br>6. Verify it's actually a max/min using first or second derivative test.
+    <br>7. Answer the question (with units!).
+  </div>
+</div>
+
+<div class="section-card">
+  <h2>📝 Max & Min Problem Set <span class="badge medium">100+ Problems</span></h2>
+  <div id="maxmin-probs"></div>
+</div>
+
+</div>
+
+<!-- ==================== TAB 5: RELATED RATES ==================== -->
+<div class="tab-panel" id="tab5">
+
+<div class="section-card">
+  <h2>⏱️ Related Rates</h2>
+
+  <h3>What are Related Rates?</h3>
+  <div class="concept">
+    Related rates problems ask: if one quantity is changing at a known rate, how fast is a related quantity changing?
+    <div class="formula">Key tool: Implicit differentiation with respect to TIME (t)</div>
+    <div class="tip">Everything is changing with respect to time! dV/dt means "how fast is Volume changing per unit time".</div>
+  </div>
+
+  <h3>General Strategy (MEMORIZE THIS PROCESS!)</h3>
+  <div class="concept">
+    <strong>Step 1: DRAW a diagram and label everything with variables.</strong><br>
+    <strong>Step 2: IDENTIFY what rates are given (dX/dt = ?) and what rate you need (dY/dt = ?).</strong><br>
+    <strong>Step 3: WRITE an equation relating all relevant variables.</strong><br>
+    <strong>Step 4: DIFFERENTIATE both sides with respect to t (chain rule on everything!).</strong><br>
+    <strong>Step 5: SUBSTITUTE known values and SOLVE for the unknown rate.</strong><br>
+    <div class="alert">Substitute the given values of the variables AFTER differentiating, not before!</div>
+  </div>
+
+  <h3>Common Geometric Formulas (You Need These!)</h3>
+  <div class="concept">
+    <div class="formula">Circle: A = πr² &nbsp;&nbsp; C = 2πr</div>
+    <div class="formula">Rectangle: A = lw &nbsp;&nbsp; P = 2l + 2w</div>
+    <div class="formula">Triangle: A = ½bh</div>
+    <div class="formula">Sphere: V = (4/3)πr³ &nbsp;&nbsp; SA = 4πr²</div>
+    <div class="formula">Cylinder: V = πr²h &nbsp;&nbsp; Lateral SA = 2πrh</div>
+    <div class="formula">Cone: V = (1/3)πr²h</div>
+    <div class="formula">Pythagorean: a² + b² = c²</div>
+  </div>
+
+  <h3>Key Related Rates Templates</h3>
+  <div class="concept">
+    <strong>Expanding Circle:</strong> A = πr² → dA/dt = 2πr · dr/dt<br>
+    <strong>Expanding Sphere:</strong> V = (4/3)πr³ → dV/dt = 4πr² · dr/dt<br>
+    <strong>Ladder Problem:</strong> x² + y² = L² → 2x(dx/dt) + 2y(dy/dt) = 0<br>
+    <strong>Shadow Problem:</strong> Similar triangles + implicit differentiation<br>
+    <strong>Trough/Tank filling:</strong> Volume formula → differentiate w.r.t. t<br>
+    <strong>Angle problems:</strong> tan θ = y/x → sec²θ · dθ/dt = (x·dy/dt - y·dx/dt)/x²
+  </div>
+</div>
+
+<div class="section-card">
+  <h2>📝 Related Rates Problem Set <span class="badge hard">60 Problems</span></h2>
+  <div id="rr-probs"></div>
+</div>
+
+</div>
+
+<!-- ==================== TAB 6: FLASHCARDS ==================== -->
+<div class="tab-panel" id="tab6">
+<div class="section-card">
+  <h2>🃏 Flashcards</h2>
+  <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:1.5rem">Click the card to flip it! Use arrow buttons to navigate.</p>
+  <div class="flashcard-area">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="card-front" id="cardFront">
+        <div>
+          <div class="term" id="cardTerm">Loading...</div>
+          <div class="card-hint">👆 Click to see definition</div>
+        </div>
+      </div>
+      <div class="card-back" id="cardBack">
+        <div class="def" id="cardDef">...</div>
+      </div>
+    </div>
+  </div>
+  <div class="fc-nav">
+    <button onclick="prevCard()">← Prev</button>
+    <span class="fc-counter" id="fcCounter">1 / 1</span>
+    <button onclick="nextCard()">Next →</button>
+  </div>
+  <div style="margin-top:1rem;text-align:center">
+    <button class="btn-outline" onclick="shuffleCards()">🔀 Shuffle</button>
+    <button class="btn" onclick="resetCards()" style="margin-left:0.5rem">↺ Reset</button>
+  </div>
+  <div style="margin-top:1rem">
+    <div class="filter-row" id="fcFilter">
+      <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
+      <button class="filter-btn" onclick="filterCards('fundamentals',this)">Fundamentals</button>
+      <button class="filter-btn" onclick="filterCards('limits',this)">Limits</button>
+      <button class="filter-btn" onclick="filterCards('derivatives',this)">Derivatives</button>
+      <button class="filter-btn" onclick="filterCards('concavity',this)">Concavity</button>
+      <button class="filter-btn" onclick="filterCards('maxmin',this)">Max/Min</button>
+      <button class="filter-btn" onclick="filterCards('rr',this)">Related Rates</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== TAB 7: QUIZ MODE ==================== -->
+<div class="tab-panel" id="tab7">
+<div class="section-card">
+  <h2>🧪 Quiz Mode</h2>
+  <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:1rem">Test yourself! Select topic and start the quiz.</p>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setQuizTopic('all',this)">All Topics</button>
+    <button class="filter-btn" onclick="setQuizTopic('limits',this)">Limits</button>
+    <button class="filter-btn" onclick="setQuizTopic('derivatives',this)">Derivatives</button>
+    <button class="filter-btn" onclick="setQuizTopic('concavity',this)">Concavity</button>
+    <button class="filter-btn" onclick="setQuizTopic('maxmin',this)">Max/Min</button>
+  </div>
+  <button class="btn" onclick="startQuiz()" style="margin-bottom:1.5rem">▶ Start Quiz (10 questions)</button>
+  <div class="quiz-score" id="quizScore" style="display:none"></div>
+  <div id="quizArea"></div>
+  <div id="quizResult" style="display:none;text-align:center;margin-top:1rem">
+    <div class="quiz-score" id="quizFinalScore"></div>
+    <button class="btn" onclick="startQuiz()">🔄 Try Again</button>
+  </div>
+</div>
+</div>
+
+</div><!-- end .content -->
+
+<script>
+// ============================================================
+// PROGRESS TRACKING
+// ============================================================
+let solvedCount = 0;
+let totalProblems = 0;
+
+function trackProgress() {
+  totalProblems = document.querySelectorAll('.problem').length;
+  const pct = totalProblems > 0 ? (solvedCount / totalProblems) * 100 : 0;
+  document.getElementById('globalProgress').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = solvedCount + ' / ' + totalProblems + ' problems opened';
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(idx) {
+  document.querySelectorAll('.tab-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  if(idx===6) renderFlashcards();
+}
+
+// ============================================================
+// PROBLEM BUILDER
+// ============================================================
+function buildProblems(containerId, problems) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  problems.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'problem';
+    div.innerHTML = `
+      <div class="problem-q" onclick="toggleProblem(this)">
+        <span class="num">#${i+1}</span>
+        <span class="text">${p.q}</span>
+        <span class="toggle-icon">▼</span>
+      </div>
+      <div class="problem-a">${p.a}</div>`;
+    container.appendChild(div);
+  });
+  trackProgress();
+}
+
+function toggleProblem(el) {
+  const prob = el.parentElement;
+  const wasOpen = prob.classList.contains('open');
+  prob.classList.toggle('open');
+  if (!wasOpen) { solvedCount++; trackProgress(); }
+}
+
+// ============================================================
+// ALGEBRA PROBLEMS
+// ============================================================
+const algProbs = [
+  {q:"Simplify: x³ · x⁵", a:"<div class='step'>Add exponents: x^(3+5)</div><div class='ans'>= x⁸</div>"},
+  {q:"Simplify: (x⁴)³", a:"<div class='step'>Multiply exponents: x^(4·3)</div><div class='ans'>= x¹²</div>"},
+  {q:"Simplify: x⁷ / x³", a:"<div class='step'>Subtract exponents: x^(7-3)</div><div class='ans'>= x⁴</div>"},
+  {q:"Simplify: (2x³y²)⁴", a:"<div class='step'>Raise each factor: 2⁴·x^12·y^8</div><div class='ans'>= 16x¹²y⁸</div>"},
+  {q:"Simplify: x^(-3)", a:"<div class='step'>Negative exponent = reciprocal</div><div class='ans'>= 1/x³</div>"},
+  {q:"Simplify: (x/y)^(-2)", a:"<div class='step'>Flip and square: (y/x)²</div><div class='ans'>= y²/x²</div>"},
+  {q:"Simplify: √(x⁶)", a:"<div class='step'>x^(6/2)</div><div class='ans'>= x³</div>"},
+  {q:"Simplify: x^(2/3)", a:"<div class='step'>Fractional exponent = root: ∛(x²)</div><div class='ans'>= ∛(x²)</div>"},
+  {q:"Simplify: (8x⁶)^(1/3)", a:"<div class='step'>Cube root of 8 = 2, cube root of x⁶ = x²</div><div class='ans'>= 2x²</div>"},
+  {q:"Simplify: (x⁰ + y⁰)²", a:"<div class='step'>x⁰ = 1, y⁰ = 1, so (1+1)² = 2² = 4</div><div class='ans'>= 4</div>"},
+  {q:"Factor: x² - 9", a:"<div class='step'>Difference of squares: (a-b)(a+b)</div><div class='ans'>= (x-3)(x+3)</div>"},
+  {q:"Factor: x² - 5x + 6", a:"<div class='step'>Find two numbers multiplying to 6, adding to -5: -2 and -3</div><div class='ans'>= (x-2)(x-3)</div>"},
+  {q:"Factor: 2x² + 5x + 3", a:"<div class='step'>AC method: a·c = 6, find two numbers = 2 and 3. Split: 2x²+2x+3x+3 = 2x(x+1)+3(x+1)</div><div class='ans'>= (2x+3)(x+1)</div>"},
+  {q:"Factor: x³ - 27", a:"<div class='step'>Difference of cubes: (x-3)(x²+3x+9)</div><div class='ans'>= (x-3)(x²+3x+9)</div>"},
+  {q:"Factor: x⁴ - 16", a:"<div class='step'>Diff of squares twice: (x²-4)(x²+4) = (x-2)(x+2)(x²+4)</div><div class='ans'>= (x-2)(x+2)(x²+4)</div>"},
+  {q:"Simplify: (x²-4)/(x-2)", a:"<div class='step'>Factor numerator: (x-2)(x+2)/(x-2) = x+2</div><div class='ans'>= x + 2, (x ≠ 2)</div>"},
+  {q:"Simplify: (x²-x-6)/(x-3)", a:"<div class='step'>Factor: (x-3)(x+2)/(x-3) = x+2</div><div class='ans'>= x + 2, (x ≠ 3)</div>"},
+  {q:"Simplify: (x³-8)/(x-2)", a:"<div class='step'>Factor as diff of cubes: (x-2)(x²+2x+4)/(x-2)</div><div class='ans'>= x² + 2x + 4, (x ≠ 2)</div>"},
+  {q:"Rationalize: 1/√3", a:"<div class='step'>Multiply by √3/√3: √3/3</div><div class='ans'>= √3/3</div>"},
+  {q:"Rationalize: 5/(√7 - √2)", a:"<div class='step'>Multiply by conjugate (√7+√2)/(√7+√2): 5(√7+√2)/(7-2)</div><div class='ans'>= (5√7 + 5√2)/5 = √7 + √2</div>"},
+];
+
+const factorProbs = [
+  {q:"Factor completely: 3x² - 12", a:"<div class='step'>GCF first: 3(x²-4) = 3(x-2)(x+2)</div><div class='ans'>= 3(x-2)(x+2)</div>"},
+  {q:"Factor: x² + 10x + 25", a:"<div class='step'>Perfect square trinomial: (x+5)²</div><div class='ans'>= (x+5)²</div>"},
+  {q:"Factor: 4x² - 12x + 9", a:"<div class='step'>Perfect square: (2x-3)²</div><div class='ans'>= (2x-3)²</div>"},
+  {q:"Factor: x³ + 8", a:"<div class='step'>Sum of cubes: (x+2)(x²-2x+4)</div><div class='ans'>= (x+2)(x²-2x+4)</div>"},
+  {q:"Factor: 6x² + 11x - 10", a:"<div class='step'>AC=−60, split: 6x²+15x−4x−10 = 3x(2x+5)−2(2x+5)</div><div class='ans'>= (3x-2)(2x+5)</div>"},
+  {q:"Factor: x²y - xy²", a:"<div class='step'>GCF = xy: xy(x-y)</div><div class='ans'>= xy(x-y)</div>"},
+  {q:"Factor: 2x³ - 16", a:"<div class='step'>GCF=2: 2(x³-8)=2(x-2)(x²+2x+4)</div><div class='ans'>= 2(x-2)(x²+2x+4)</div>"},
+  {q:"Factor: x² - 2x - 15", a:"<div class='step'>Two numbers: -5 and 3</div><div class='ans'>= (x-5)(x+3)</div>"},
+  {q:"Factor: 9x² - 25", a:"<div class='step'>Difference of squares</div><div class='ans'>= (3x-5)(3x+5)</div>"},
+  {q:"Factor: x⁴ - y⁴", a:"<div class='step'>(x²-y²)(x²+y²) = (x-y)(x+y)(x²+y²)</div><div class='ans'>= (x-y)(x+y)(x²+y²)</div>"},
+];
+
+const simpProbs = [
+  {q:"Simplify: (x+3)/(x²-9)", a:"<div class='step'>Denominator: (x+3)(x-3). Cancel (x+3).</div><div class='ans'>= 1/(x-3)</div>"},
+  {q:"Simplify: (2x²-8)/(x²+2x-8)", a:"<div class='step'>Num: 2(x-2)(x+2); Den: (x+4)(x-2)</div><div class='ans'>= 2(x+2)/(x+4)</div>"},
+  {q:"Add: 1/(x-1) + 1/(x+1)", a:"<div class='step'>LCD = (x-1)(x+1): (x+1+x-1)/((x-1)(x+1))</div><div class='ans'>= 2x/(x²-1)</div>"},
+  {q:"Simplify: (1/x - 1/y) / (1/x + 1/y)", a:"<div class='step'>Multiply all by xy: (y-x)/(y+x)</div><div class='ans'>= (y-x)/(y+x)</div>"},
+  {q:"Rationalize denominator: (x-1)/(√x - 1)", a:"<div class='step'>Multiply by (√x+1)/(√x+1): (x-1)(√x+1)/(x-1) = √x+1</div><div class='ans'>= √x + 1</div>"},
+];
+
+const trigProbs = [
+  {q:"Find sin(π/6)", a:"<div class='step'>30° on unit circle</div><div class='ans'>= 1/2</div>"},
+  {q:"Find cos(π/3)", a:"<div class='step'>60° on unit circle</div><div class='ans'>= 1/2</div>"},
+  {q:"Find tan(π/4)", a:"<div class='step'>sin/cos = (√2/2)/(√2/2)</div><div class='ans'>= 1</div>"},
+  {q:"Find sin(3π/2)", a:"<div class='step'>270° on unit circle</div><div class='ans'>= -1</div>"},
+  {q:"Find cos(2π/3)", a:"<div class='step'>120°: cos(180°-60°) = -cos60° = -1/2</div><div class='ans'>= -1/2</div>"},
+  {q:"Simplify: sin²x + cos²x", a:"<div class='step'>Pythagorean identity!</div><div class='ans'>= 1</div>"},
+  {q:"Simplify: (1 - sin²x)", a:"<div class='step'>From sin²x + cos²x = 1</div><div class='ans'>= cos²x</div>"},
+  {q:"Simplify: sec²x - 1", a:"<div class='step'>From 1 + tan²x = sec²x</div><div class='ans'>= tan²x</div>"},
+  {q:"Simplify: sin(2x)", a:"<div class='step'>Double angle formula</div><div class='ans'>= 2 sin x cos x</div>"},
+  {q:"Simplify: cos²x - sin²x", a:"<div class='step'>Double angle formula for cos</div><div class='ans'>= cos(2x)</div>"},
+  {q:"If sin x = 3/5 in Q1, find cos x", a:"<div class='step'>cos²x = 1 - 9/25 = 16/25; Q1 so positive</div><div class='ans'>= 4/5</div>"},
+  {q:"If tan x = 2, find sec²x", a:"<div class='step'>1 + tan²x = sec²x → 1 + 4</div><div class='ans'>= 5</div>"},
+  {q:"Simplify: sin x / tan x", a:"<div class='step'>tan x = sin x/cos x; so sin x / (sin x/cos x)</div><div class='ans'>= cos x</div>"},
+  {q:"Find the exact value of sin(π/12)", a:"<div class='step'>π/12 = π/3 - π/4; use sin(A-B) = sinAcosB - cosAsinB = (√6-√2)/4</div><div class='ans'>= (√6 - √2)/4</div>"},
+  {q:"Prove: tan²x + 1 = sec²x", a:"<div class='step'>Divide sin²x + cos²x = 1 by cos²x throughout: sin²x/cos²x + 1 = 1/cos²x → tan²x + 1 = sec²x ✓</div><div class='ans'>Proven!</div>"},
+];
+
+// ============================================================
+// LIMITS PROBLEMS
+// ============================================================
+const limitProbs = [
+  // Direct substitution (easy)
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→3] (2x + 1)", a:"<div class='step'>Plug in x = 3: 2(3) + 1</div><div class='ans'>= 7</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→-1] (x² - 3x + 2)", a:"<div class='step'>(-1)² - 3(-1) + 2 = 1 + 3 + 2</div><div class='ans'>= 6</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→2] (x³ - 4x)", a:"<div class='step'>8 - 8</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→0] (cos x)", a:"<div class='step'>cos(0)</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→π] (sin x + cos x)", a:"<div class='step'>sin(π) + cos(π) = 0 + (-1)</div><div class='ans'>= -1</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→1] (x⁴ - 2x³ + x)", a:"<div class='step'>1 - 2 + 1</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→4] √(x + 5)", a:"<div class='step'>√9</div><div class='ans'>= 3</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→2] (3x² - x + 4) / (x + 1)", a:"<div class='step'>(12 - 2 + 4)/(3) = 14/3</div><div class='ans'>= 14/3</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→e] ln(x)", a:"<div class='step'>ln(e)</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→0] eˣ", a:"<div class='step'>e⁰</div><div class='ans'>= 1</div>"},
+  // Factor and cancel (medium)
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→2] (x² - 4)/(x - 2)", a:"<div class='step'>Factor: (x-2)(x+2)/(x-2) = x+2</div><div class='step'>Substitute: 2 + 2</div><div class='ans'>= 4</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→3] (x² - 9)/(x - 3)", a:"<div class='step'>Factor: (x-3)(x+3)/(x-3) = x+3</div><div class='ans'>= 6</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→-2] (x² + 5x + 6)/(x + 2)", a:"<div class='step'>Factor: (x+2)(x+3)/(x+2) = x+3</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→1] (x³ - 1)/(x - 1)", a:"<div class='step'>Factor: (x-1)(x²+x+1)/(x-1) = x²+x+1</div><div class='ans'>= 3</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→-1] (x² - 1)/(x + 1)", a:"<div class='step'>Factor: (x-1)(x+1)/(x+1) = x-1</div><div class='ans'>= -2</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→2] (x² - 3x + 2)/(x² - 4)", a:"<div class='step'>Num: (x-1)(x-2); Den: (x-2)(x+2). Cancel (x-2).</div><div class='step'>(x-1)/(x+2) at x=2</div><div class='ans'>= 1/4</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→3] (x² - x - 6)/(x² - 9)", a:"<div class='step'>Num: (x-3)(x+2); Den: (x-3)(x+3). Result: (x+2)/(x+3)</div><div class='ans'>= 5/6</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→0] (x² + 3x)/x", a:"<div class='step'>Factor x: x(x+3)/x = x+3</div><div class='ans'>= 3</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→4] (x² - 16)/(x - 4)", a:"<div class='step'>Factor: (x-4)(x+4)/(x-4) = x+4</div><div class='ans'>= 8</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→-3] (x² - 9)/(x + 3)", a:"<div class='step'>Factor: (x+3)(x-3)/(x+3) = x-3</div><div class='ans'>= -6</div>"},
+  // Rationalize
+  {q:"<span class='tag tag-blue'>Rationalize</span> lim[x→0] (√(x+1) - 1)/x", a:"<div class='step'>Multiply by (√(x+1)+1)/(√(x+1)+1)</div><div class='step'>Numerator: (x+1)-1 = x</div><div class='step'>Result: x/(x(√(x+1)+1)) = 1/(√(x+1)+1)</div><div class='step'>At x=0: 1/(1+1)</div><div class='ans'>= 1/2</div>"},
+  {q:"<span class='tag tag-blue'>Rationalize</span> lim[x→4] (√x - 2)/(x - 4)", a:"<div class='step'>Multiply by (√x+2)/(√x+2)</div><div class='step'>Num: x-4; Den: (x-4)(√x+2)</div><div class='step'>= 1/(√x+2)</div><div class='ans'>= 1/4</div>"},
+  {q:"<span class='tag tag-blue'>Rationalize</span> lim[x→9] (x - 9)/(√x - 3)", a:"<div class='step'>Multiply by (√x+3)/(√x+3)</div><div class='step'>= (x-9)(√x+3)/(x-9) = √x+3</div><div class='ans'>= 6</div>"},
+  {q:"<span class='tag tag-blue'>Rationalize</span> lim[x→0] (√(4+x) - 2)/x", a:"<div class='step'>Multiply by (√(4+x)+2)/(√(4+x)+2)</div><div class='step'>= x/(x(√(4+x)+2)) = 1/(√(4+x)+2)</div><div class='ans'>= 1/4</div>"},
+  {q:"<span class='tag tag-blue'>Rationalize</span> lim[x→3] (√(x+1) - 2)/(x - 3)", a:"<div class='step'>Multiply by conjugate: (x+1-4)/((x-3)(√(x+1)+2))</div><div class='step'>= (x-3)/((x-3)(√(x+1)+2)) = 1/(√(x+1)+2)</div><div class='ans'>= 1/4</div>"},
+  // Trig limits
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] sin(3x)/x", a:"<div class='step'>Rewrite: 3·sin(3x)/(3x) → 3·[sin(3x)/(3x)]</div><div class='step'>As x→0, sin(3x)/(3x) → 1</div><div class='ans'>= 3</div>"},
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] sin(5x)/sin(2x)", a:"<div class='step'>Rewrite: [sin(5x)/(5x)]·5 / [sin(2x)/(2x)]·2 = 5/2·(1/1)</div><div class='ans'>= 5/2</div>"},
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] (1 - cos x)/x²", a:"<div class='step'>Standard result or use L'Hôpital twice</div><div class='ans'>= 1/2</div>"},
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] tan(x)/x", a:"<div class='step'>= lim sin(x)/(x·cos(x)) = 1·(1/1)</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] sin²(x)/x", a:"<div class='step'>= x·[sin x/x]² → 0·1² = 0</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] sin(x²)/x", a:"<div class='step'>= x·[sin(x²)/x²] → 0·1 = 0</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] (sin 4x)/(3x)", a:"<div class='step'>= (4/3)·sin(4x)/(4x) → 4/3</div><div class='ans'>= 4/3</div>"},
+  // Infinity limits
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] (3x + 2)/(2x - 1)", a:"<div class='step'>Divide numerator and denominator by x: (3 + 2/x)/(2 - 1/x)</div><div class='step'>As x→∞, 2/x → 0 and 1/x → 0</div><div class='ans'>= 3/2</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] (5x² - 3)/(x² + 1)", a:"<div class='step'>Highest power is x². Divide by x²: (5 - 3/x²)/(1 + 1/x²)</div><div class='ans'>= 5</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] (x + 1)/(x² - 4)", a:"<div class='step'>Numerator degree < denominator degree</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] (2x³ - 5)/(x² + 3)", a:"<div class='step'>Numerator degree > denominator</div><div class='ans'>= +∞</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→-∞] (3x² + 1)/(x² - 2)", a:"<div class='step'>Same degree, ratio of leading coefficients</div><div class='ans'>= 3</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] (x² - x) / (x³ + 1)", a:"<div class='step'>Top degree &lt; bottom degree</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] √(x² + x) - x", a:"<div class='step'>Multiply by conjugate: (x²+x-x²)/(√(x²+x)+x) = x/(x√(1+1/x)+x) = 1/(√(1+1/x)+1)</div><div class='ans'>= 1/2</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] (3x⁴ - 7x)/(5x⁴ + 2x²)", a:"<div class='step'>Divide by x⁴: (3 - 7/x³)/(5 + 2/x²)</div><div class='ans'>= 3/5</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] eˣ", a:"<div class='step'>Exponential growth is unbounded</div><div class='ans'>= +∞</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→-∞] eˣ", a:"<div class='step'>eˣ approaches 0 from the positive side</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] ln(x)", a:"<div class='step'>Natural log is unbounded as x → ∞</div><div class='ans'>= +∞</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→0⁺] ln(x)", a:"<div class='step'>As x→0 from right, ln x → -∞</div><div class='ans'>= -∞</div>"},
+  // Vertical asymptotes / one-sided
+  {q:"<span class='tag tag-blue'>One-Sided</span> lim[x→2⁺] 1/(x-2)", a:"<div class='step'>As x approaches 2 from right, (x-2) → 0⁺, so 1/(x-2) → +∞</div><div class='ans'>= +∞</div>"},
+  {q:"<span class='tag tag-blue'>One-Sided</span> lim[x→2⁻] 1/(x-2)", a:"<div class='step'>As x approaches 2 from left, (x-2) → 0⁻, so 1/(x-2) → -∞</div><div class='ans'>= -∞</div>"},
+  {q:"<span class='tag tag-blue'>One-Sided</span> Does lim[x→2] 1/(x-2) exist?", a:"<div class='step'>Left limit = -∞, Right limit = +∞. They are NOT equal.</div><div class='ans'>DNE (Does Not Exist)</div>"},
+  {q:"<span class='tag tag-blue'>One-Sided</span> lim[x→0⁺] 1/x²", a:"<div class='step'>x² → 0⁺ always, so 1/x² → +∞</div><div class='ans'>= +∞</div>"},
+  {q:"<span class='tag tag-blue'>One-Sided</span> lim[x→3⁺] (x+1)/(x-3)", a:"<div class='step'>x+1 → 4 (positive), x-3 → 0⁺, result → +∞</div><div class='ans'>= +∞</div>"},
+  // L'Hopital
+  {q:"<span class='tag tag-orange'>L'Hôpital</span> lim[x→0] (eˣ - 1)/x", a:"<div class='step'>0/0 form. Differentiate top and bottom.</div><div class='step'>= lim eˣ/1 = e⁰</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-orange'>L'Hôpital</span> lim[x→0] (sin x)/x", a:"<div class='step'>0/0 form. d/dx[sin x] = cos x, d/dx[x] = 1</div><div class='step'>= lim cos x / 1 = cos 0</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-orange'>L'Hôpital</span> lim[x→1] (ln x)/(x-1)", a:"<div class='step'>0/0. Top: 1/x, Bottom: 1. At x=1: 1/1</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-orange'>L'Hôpital</span> lim[x→∞] x/eˣ", a:"<div class='step'>∞/∞. Top: 1, Bottom: eˣ. lim 1/eˣ</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-orange'>L'Hôpital</span> lim[x→0] (x - sin x)/x³", a:"<div class='step'>Apply L'Hôpital 3 times: (1-cosx)/(3x²) → sinx/(6x) → cosx/6</div><div class='ans'>= 1/6</div>"},
+  // More problems to reach 100+
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→5] (x² - 25)/(x - 5)", a:"<div class='step'>Factor: (x-5)(x+5)/(x-5) = x+5</div><div class='ans'>= 10</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→0] (sin 2x)/(2x)", a:"<div class='step'>Standard result sin(u)/u → 1 as u→0</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] (2x² + x - 1)/(3x² - 4x + 2)", a:"<div class='step'>Same degree → ratio of leading coefficients</div><div class='ans'>= 2/3</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→0] (x² + 2x)/x", a:"<div class='step'>Factor x: x(x+2)/x = x+2</div><div class='ans'>= 2</div>"},
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] sin(ax)/sin(bx)", a:"<div class='step'>= a/b · [sin(ax)/(ax)] / [sin(bx)/(bx)] → a/b · 1</div><div class='ans'>= a/b</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→π/2] cos(x)", a:"<div class='step'>cos(π/2)</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] (1 + 1/x)^x", a:"<div class='step'>Famous limit definition of e!</div><div class='ans'>= e ≈ 2.718...</div>"},
+  {q:"<span class='tag tag-blue'>Rationalize</span> lim[x→0] (√(1+x) - √(1-x))/x", a:"<div class='step'>Multiply by (√(1+x)+√(1-x)): ((1+x)-(1-x))/(x(√(1+x)+√(1-x))) = 2x/(x·2) = 1</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-blue'>One-Sided</span> lim[x→0] |x|/x", a:"<div class='step'>From right: x/x = 1. From left: -x/x = -1. Limits differ.</div><div class='ans'>DNE</div>"},
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] x·cot(x)", a:"<div class='step'>= x·cos(x)/sin(x) = [x/sin(x)]·cos(x) → 1·1</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-orange'>L'Hôpital</span> lim[x→∞] ln(x)/x", a:"<div class='step'>∞/∞: d/dx[ln x] = 1/x, d/dx[x] = 1. Limit = 1/x/1 → 0</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[x→2] (x³ - 8)/(x - 2)", a:"<div class='step'>Difference of cubes: (x-2)(x²+2x+4)/(x-2) = x²+2x+4</div><div class='ans'>= 12</div>"},
+  {q:"<span class='tag tag-green'>Direct Sub</span> lim[x→0] (3x² + 5x + 2)", a:"<div class='step'>Plug in 0: 0 + 0 + 2</div><div class='ans'>= 2</div>"},
+  {q:"<span class='tag tag-blue'>Squeeze</span> lim[x→0] x²·sin(1/x)", a:"<div class='step'>-1 ≤ sin(1/x) ≤ 1, so -x² ≤ x²sin(1/x) ≤ x²</div><div class='step'>Both sides → 0 by squeeze theorem</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] sin(x)/x", a:"<div class='step'>-1 ≤ sin(x) ≤ 1, so -1/x ≤ sin(x)/x ≤ 1/x → 0</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-blue'>Trig</span> lim[x→0] (cos x - 1)/x", a:"<div class='step'>Standard result</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-orange'>Factor</span> lim[h→0] [(x+h)² - x²]/h", a:"<div class='step'>Expand: (x²+2xh+h²-x²)/h = (2xh+h²)/h = 2x+h</div><div class='ans'>= 2x (definition of derivative of x²)</div>"},
+  {q:"<span class='tag tag-orange'>Infinity</span> lim[x→∞] (x² + 1)^(1/2) / x", a:"<div class='step'>= √(1 + 1/x²) → √1</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-blue'>One-Sided</span> f(x) = {x+1, x&lt;2; 3, x=2; x²-1, x>2}. Find lim[x→2]", a:"<div class='step'>Left: 2+1 = 3. Right: 4-1 = 3. Both equal!</div><div class='ans'>= 3</div>"},
+  {q:"<span class='tag tag-blue'>One-Sided</span> g(x) = {2x, x&lt;1; x², x≥1}. Does lim[x→1] g(x) exist?", a:"<div class='step'>Left: 2(1) = 2. Right: 1² = 1. Not equal!</div><div class='ans'>DNE</div>"},
+];
+
+// ============================================================
+// DERIVATIVE PROBLEMS
+// ============================================================
+const derivProbs = [
+  // Power rule
+  {q:"<span class='tag tag-green'>Power Rule</span> Find f'(x) if f(x) = x⁵", a:"<div class='step'>Power rule: nx^(n-1)</div><div class='ans'>f'(x) = 5x⁴</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> Find dy/dx for y = 3x⁴", a:"<div class='step'>3 · 4x³</div><div class='ans'>= 12x³</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> Find f'(x) for f(x) = x^(-3)", a:"<div class='step'>-3·x^(-4)</div><div class='ans'>= -3/x⁴</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> Find dy/dx for y = √x", a:"<div class='step'>x^(1/2) → (1/2)x^(-1/2)</div><div class='ans'>= 1/(2√x)</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> f(x) = x^(2/3)", a:"<div class='step'>(2/3)x^(-1/3)</div><div class='ans'>= 2/(3·x^(1/3))</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> f(x) = 7", a:"<div class='step'>Derivative of constant = 0</div><div class='ans'>= 0</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> f(x) = 5x³ - 4x² + 2x - 9", a:"<div class='step'>Apply power rule to each term</div><div class='ans'>= 15x² - 8x + 2</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> f(x) = (1/3)x³ + x²", a:"<div class='step'>(1/3)·3x² + 2x</div><div class='ans'>= x² + 2x</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> f(x) = x⁻¹⸍² (rewrite as power first)", a:"<div class='step'>(-1/2)x^(-3/2)</div><div class='ans'>= -1/(2x^(3/2))</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> f(x) = 4x + 3", a:"<div class='step'>Derivative: 4</div><div class='ans'>= 4</div>"},
+  // Product rule
+  {q:"<span class='tag tag-orange'>Product Rule</span> y = x²·sin(x)", a:"<div class='step'>f=x², g=sin x; f'=2x, g'=cos x</div><div class='step'>f'g + fg' = 2x·sin x + x²·cos x</div><div class='ans'>= 2x sin x + x² cos x</div>"},
+  {q:"<span class='tag tag-orange'>Product Rule</span> y = eˣ·cos(x)", a:"<div class='step'>f=eˣ, g=cos x; f'=eˣ, g'=-sin x</div><div class='ans'>= eˣ cos x - eˣ sin x = eˣ(cos x - sin x)</div>"},
+  {q:"<span class='tag tag-orange'>Product Rule</span> y = x·ln(x)", a:"<div class='step'>f=x, g=ln x; f'=1, g'=1/x</div><div class='step'>= 1·ln x + x·(1/x)</div><div class='ans'>= ln x + 1</div>"},
+  {q:"<span class='tag tag-orange'>Product Rule</span> y = (x²+1)(x³-2)", a:"<div class='step'>= 2x(x³-2) + (x²+1)(3x²)</div><div class='step'>= 2x⁴-4x + 3x⁴+3x² = 5x⁴+3x²-4x</div><div class='ans'>= 5x⁴ + 3x² - 4x</div>"},
+  {q:"<span class='tag tag-orange'>Product Rule</span> y = √x · eˣ", a:"<div class='step'>f=x^(1/2), g=eˣ; f'=(1/2)x^(-1/2), g'=eˣ</div><div class='ans'>= eˣ/(2√x) + √x·eˣ = eˣ(1/(2√x) + √x)</div>"},
+  {q:"<span class='tag tag-orange'>Product Rule</span> y = (2x + 1)(3x² - 5)", a:"<div class='step'>= 2(3x²-5) + (2x+1)(6x)</div><div class='step'>= 6x²-10 + 12x²+6x</div><div class='ans'>= 18x² + 6x - 10</div>"},
+  // Quotient rule
+  {q:"<span class='tag tag-orange'>Quotient Rule</span> y = x/(x+1)", a:"<div class='step'>f=x, g=x+1; f'=1, g'=1</div><div class='step'>= (1(x+1) - x·1)/(x+1)²</div><div class='ans'>= 1/(x+1)²</div>"},
+  {q:"<span class='tag tag-orange'>Quotient Rule</span> y = sin(x)/x", a:"<div class='step'>f=sin x, g=x; f'=cos x, g'=1</div><div class='step'>= (x cos x - sin x)/x²</div><div class='ans'>= (x cos x - sin x)/x²</div>"},
+  {q:"<span class='tag tag-orange'>Quotient Rule</span> y = (x²-1)/(x²+1)", a:"<div class='step'>= (2x(x²+1) - (x²-1)·2x)/(x²+1)²</div><div class='step'>= 2x[(x²+1)-(x²-1)]/(x²+1)² = 4x/(x²+1)²</div><div class='ans'>= 4x/(x²+1)²</div>"},
+  {q:"<span class='tag tag-orange'>Quotient Rule</span> y = eˣ/(x+1)", a:"<div class='step'>= (eˣ(x+1) - eˣ·1)/(x+1)²</div><div class='ans'>= x·eˣ/(x+1)²</div>"},
+  {q:"<span class='tag tag-orange'>Quotient Rule</span> y = (3x + 2)/√x", a:"<div class='step'>Rewrite: (3x+2)·x^(-1/2)</div><div class='step'>= 3·x^(-1/2) + (3x+2)·(-1/2)x^(-3/2)</div><div class='ans'>= (3x - 1)/(2x^(3/2))</div>"},
+  // Chain rule
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = (2x+1)⁵", a:"<div class='step'>Outer: u⁵, inner: 2x+1</div><div class='step'>= 5(2x+1)⁴ · 2</div><div class='ans'>= 10(2x+1)⁴</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = sin(3x)", a:"<div class='step'>= cos(3x) · 3</div><div class='ans'>= 3 cos(3x)</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = e^(x²)", a:"<div class='step'>= e^(x²) · 2x</div><div class='ans'>= 2x·e^(x²)</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = √(x² + 1)", a:"<div class='step'>= (1/2)(x²+1)^(-1/2) · 2x</div><div class='ans'>= x/√(x²+1)</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = cos²(x)", a:"<div class='step'>= 2cos(x) · (-sin x)</div><div class='ans'>= -2 sin x cos x = -sin(2x)</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = ln(x² + 3)", a:"<div class='step'>= (1/(x²+3)) · 2x</div><div class='ans'>= 2x/(x²+3)</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = tan(4x)", a:"<div class='step'>= sec²(4x) · 4</div><div class='ans'>= 4 sec²(4x)</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = (x³ - 2)^(1/2)", a:"<div class='step'>= (1/2)(x³-2)^(-1/2) · 3x²</div><div class='ans'>= 3x²/(2√(x³-2))</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = e^(sin x)", a:"<div class='step'>= e^(sin x) · cos x</div><div class='ans'>= cos x · e^(sin x)</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = sin(cos x)", a:"<div class='step'>= cos(cos x) · (-sin x)</div><div class='ans'>= -sin x · cos(cos x)</div>"},
+  // Trig derivatives
+  {q:"<span class='tag tag-green'>Trig Deriv</span> y = x² + cos(x)", a:"<div class='step'>Separate terms</div><div class='ans'>y' = 2x - sin x</div>"},
+  {q:"<span class='tag tag-green'>Trig Deriv</span> y = tan(x) - sec(x)", a:"<div class='step'>d/dx[tan x] = sec²x; d/dx[sec x] = sec x tan x</div><div class='ans'>y' = sec²x - sec x tan x</div>"},
+  {q:"<span class='tag tag-green'>Trig Deriv</span> y = 3 sin(x) - 2 cos(x)", a:"<div class='step'>3cos x - 2(-sin x)</div><div class='ans'>= 3 cos x + 2 sin x</div>"},
+  {q:"<span class='tag tag-green'>Trig Deriv</span> y = csc(x)·cot(x)", a:"<div class='step'>Product rule: f=csc x, g=cot x</div><div class='step'>= -csc x cot x · cot x + csc x · (-csc²x)</div><div class='ans'>= -csc x cot²x - csc³x</div>"},
+  {q:"<span class='tag tag-green'>Trig Deriv</span> y = sin(x)/cos(x) [do not use quotient — verify it gives tan' = sec²]", a:"<div class='step'>= (cos x · cos x - sin x · (-sin x)) / cos²x = (cos²x + sin²x)/cos²x = 1/cos²x</div><div class='ans'>= sec²x ✓</div>"},
+  // Implicit differentiation
+  {q:"<span class='tag tag-orange'>Implicit</span> x² + y² = 25, find dy/dx", a:"<div class='step'>Differentiate: 2x + 2y(dy/dx) = 0</div><div class='step'>Solve: dy/dx = -2x/(2y)</div><div class='ans'>= -x/y</div>"},
+  {q:"<span class='tag tag-orange'>Implicit</span> x³ + y³ = 6xy, find dy/dx", a:"<div class='step'>3x² + 3y²(dy/dx) = 6y + 6x(dy/dx)</div><div class='step'>dy/dx(3y² - 6x) = 6y - 3x²</div><div class='ans'>= (6y - 3x²)/(3y² - 6x) = (2y - x²)/(y² - 2x)</div>"},
+  {q:"<span class='tag tag-orange'>Implicit</span> sin(y) = x, find dy/dx", a:"<div class='step'>cos(y)·dy/dx = 1</div><div class='ans'>dy/dx = 1/cos(y) = sec(y)</div>"},
+  {q:"<span class='tag tag-orange'>Implicit</span> x²y + y³ = 5, find dy/dx", a:"<div class='step'>2xy + x²(dy/dx) + 3y²(dy/dx) = 0</div><div class='step'>dy/dx(x² + 3y²) = -2xy</div><div class='ans'>= -2xy/(x² + 3y²)</div>"},
+  {q:"<span class='tag tag-orange'>Implicit</span> eˣ⁺ʸ = x², find dy/dx", a:"<div class='step'>e^(x+y)(1 + dy/dx) = 2x</div><div class='step'>1 + dy/dx = 2x/e^(x+y)</div><div class='ans'>dy/dx = 2x/e^(x+y) - 1</div>"},
+  // Higher order
+  {q:"<span class='tag tag-blue'>Higher Order</span> f(x) = x⁵, find f''(x)", a:"<div class='step'>f'(x) = 5x⁴; f''(x) = 20x³</div><div class='ans'>= 20x³</div>"},
+  {q:"<span class='tag tag-blue'>Higher Order</span> f(x) = sin(x), find f⁽⁴⁾(x)", a:"<div class='step'>f' = cos x; f'' = -sin x; f''' = -cos x; f'''' = sin x</div><div class='ans'>= sin x (cycles every 4!)</div>"},
+  {q:"<span class='tag tag-blue'>Higher Order</span> y = eˣ, find y''", a:"<div class='step'>y' = eˣ, y'' = eˣ</div><div class='ans'>= eˣ (its own derivative!)</div>"},
+  {q:"<span class='tag tag-blue'>Higher Order</span> y = ln x, find y''", a:"<div class='step'>y' = 1/x = x⁻¹; y'' = -x⁻²</div><div class='ans'>= -1/x²</div>"},
+  {q:"<span class='tag tag-blue'>Higher Order</span> f(x) = 3x³ - 2x² + x, find f''(x)", a:"<div class='step'>f'(x) = 9x² - 4x + 1</div><div class='step'>f''(x) = 18x - 4</div><div class='ans'>= 18x - 4</div>"},
+  // More derivative problems
+  {q:"<span class='tag tag-orange'>Product+Chain</span> y = x²·e^(3x)", a:"<div class='step'>Product rule: f=x², g=e^(3x); g'=3e^(3x)</div><div class='ans'>= 2x·e^(3x) + 3x²·e^(3x) = xe^(3x)(2+3x)</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = (sin x)^4", a:"<div class='step'>= 4(sin x)³ · cos x</div><div class='ans'>= 4 sin³x cos x</div>"},
+  {q:"<span class='tag tag-orange'>Quotient+Chain</span> y = sin(2x)/x²", a:"<div class='step'>Quotient rule: f=sin2x, g=x²</div><div class='step'>= (2cos(2x)·x² - sin(2x)·2x)/x⁴</div><div class='ans'>= (2x cos(2x) - 2sin(2x))/x³ = 2(x cos2x - sin2x)/x³</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> y = x^π (π is a constant)", a:"<div class='step'>Same power rule; π is just a constant</div><div class='ans'>= π·x^(π-1)</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = ln(cos x)", a:"<div class='step'>= (1/cos x) · (-sin x)</div><div class='ans'>= -tan x</div>"},
+  {q:"<span class='tag tag-green'>Trig Deriv</span> y = x·tan x", a:"<div class='step'>Product rule: 1·tan x + x·sec²x</div><div class='ans'>= tan x + x sec²x</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = e^(√x)", a:"<div class='step'>= e^(√x) · (1/2)x^(-1/2)</div><div class='ans'>= e^(√x) / (2√x)</div>"},
+  {q:"<span class='tag tag-orange'>Implicit</span> y² = 4x, find dy/dx at (1, 2)", a:"<div class='step'>2y·dy/dx = 4 → dy/dx = 2/y</div><div class='step'>At (1,2): 2/2</div><div class='ans'>= 1</div>"},
+  {q:"<span class='tag tag-green'>Power Rule</span> y = 2/x³ - 5/x", a:"<div class='step'>Rewrite: 2x^(-3) - 5x^(-1)</div><div class='step'>= -6x^(-4) + 5x^(-2)</div><div class='ans'>= -6/x⁴ + 5/x²</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = cos(x² + 3)", a:"<div class='step'>= -sin(x²+3) · 2x</div><div class='ans'>= -2x sin(x² + 3)</div>"},
+  {q:"<span class='tag tag-orange'>Product Rule</span> y = (x² + 1)·ln(x)", a:"<div class='step'>= 2x·ln x + (x²+1)·(1/x)</div><div class='ans'>= 2x ln x + x + 1/x</div>"},
+  {q:"<span class='tag tag-blue'>Chain Rule</span> y = sec(2x + 1)", a:"<div class='step'>= sec(2x+1)tan(2x+1) · 2</div><div class='ans'>= 2 sec(2x+1) tan(2x+1)</div>"},
+  {q:"<span class='tag tag-orange'>Quotient Rule</span> y = (x² + 4)/(3x - 1)", a:"<div class='step'>= (2x(3x-1) - (x²+4)·3)/(3x-1)²</div><div class='step'>= (6x²-2x - 3x²-12)/(3x-1)² = (3x²-2x-12)/(3x-1)²</div><div class='ans'>= (3x² - 2x - 12)/(3x - 1)²</div>"},
+];
+
+// ============================================================
+// CONCAVITY PROBLEMS
+// ============================================================
+const concavProbs = [
+  {q:"<span class='tag tag-green'>Concavity</span> f(x) = x³ - 6x² + 9x. Find intervals of concavity.", a:"<div class='step'>f'(x) = 3x² - 12x + 9</div><div class='step'>f''(x) = 6x - 12</div><div class='step'>f''(x) = 0: 6x = 12 → x = 2</div><div class='step'>Test: x&lt;2 → f''&lt;0 (concave down); x>2 → f''>0 (concave up)</div><div class='ans'>Concave down: (-∞, 2); Concave up: (2, ∞); Inflection at x=2</div>"},
+  {q:"<span class='tag tag-green'>Concavity</span> f(x) = x⁴ - 4x². Find inflection points.", a:"<div class='step'>f'(x) = 4x³ - 8x</div><div class='step'>f''(x) = 12x² - 8</div><div class='step'>f''=0: 12x² = 8 → x² = 2/3 → x = ±√(2/3)</div><div class='step'>Check sign changes — both do change.</div><div class='ans'>Inflection at x = ±√(2/3) ≈ ±0.816</div>"},
+  {q:"<span class='tag tag-green'>Concavity</span> f(x) = x⁴. Any inflection points?", a:"<div class='step'>f''(x) = 12x²; f''=0 at x=0</div><div class='step'>f''(x) = 12x² ≥ 0 always. Sign DOESN'T change at x=0.</div><div class='ans'>No inflection point! (f'' = 0 but sign doesn't change)</div>"},
+  {q:"<span class='tag tag-green'>Concavity</span> f(x) = sin(x) on (0, 2π). Find concavity intervals.", a:"<div class='step'>f'(x) = cos x; f''(x) = -sin x</div><div class='step'>f''=0 at x=π. f''&lt;0 on (0,π), f''>0 on (π, 2π)</div><div class='ans'>Concave down: (0,π); Concave up: (π, 2π); Inflection at x=π</div>"},
+  {q:"<span class='tag tag-green'>Concavity</span> f(x) = eˣ. Concavity?", a:"<div class='step'>f'(x) = eˣ; f''(x) = eˣ > 0 for all x</div><div class='ans'>Always concave up; no inflection points.</div>"},
+  {q:"<span class='tag tag-orange'>Concavity</span> f(x) = x⁵ - 5x⁴. Find inflection points.", a:"<div class='step'>f' = 5x⁴-20x³; f'' = 20x³-60x² = 20x²(x-3)</div><div class='step'>f''=0 at x=0 and x=3</div><div class='step'>Sign: changes at x=3 (from - to +), does NOT change at x=0</div><div class='ans'>Inflection at x = 3 only. Point: (3, 3⁵-5·3⁴) = (3, -162)</div>"},
+  {q:"<span class='tag tag-orange'>Concavity</span> f(x) = ln(x). What is the concavity?", a:"<div class='step'>f'(x) = 1/x; f''(x) = -1/x²</div><div class='step'>f''(x) &lt; 0 for all x > 0</div><div class='ans'>Always concave DOWN on its domain.</div>"},
+  {q:"<span class='tag tag-orange'>Concavity</span> f(x) = x^(1/3). Inflection points?", a:"<div class='step'>f'(x) = (1/3)x^(-2/3); f''(x) = (-2/9)x^(-5/3)</div><div class='step'>f'' is undefined at x=0. Check sign: f''&lt;0 for x&lt;0 ... wait: x^(-5/3) for x&lt;0: (-#)^(-5/3) = negative. So f''&lt;0 for x&lt;0 and f''&gt;0 ... no. Let's recheck: x^(-5/3) for x>0 is positive, so f'' = (-2/9)·positive = negative. For x&lt;0, x^(-5/3) = 1/(x^(5/3)) = negative, so f'' = (-2/9)·(negative) = positive.</div><div class='step'>Sign changes at x=0!</div><div class='ans'>Inflection point at x = 0; (0, 0)</div>"},
+  {q:"<span class='tag tag-orange'>Concavity</span> f(x) = 3x⁵ - 20x³. Find all inflection points.", a:"<div class='step'>f' = 15x⁴-60x²; f'' = 60x³-120x = 60x(x²-2)</div><div class='step'>f''=0: x=0, x=±√2</div><div class='step'>Check sign changes — all three are actual inflection points</div><div class='ans'>Inflection at x = -√2, 0, √2</div>"},
+  {q:"<span class='tag tag-orange'>Concavity</span> f(x) = x²·eˣ. Find concavity intervals.", a:"<div class='step'>f' = 2xeˣ + x²eˣ = eˣ(x²+2x)</div><div class='step'>f'' = eˣ(x²+2x) + eˣ(2x+2) = eˣ(x²+4x+2)</div><div class='step'>f''=0: x = (-4±√(16-8))/2 = -2±√2</div><div class='ans'>Inflection at x = -2-√2 and x = -2+√2</div>"},
+  {q:"<span class='tag tag-blue'>Sketch</span> Sketch f(x) = x³ - 3x using derivative analysis.", a:"<div class='step'>f' = 3x²-3 = 3(x-1)(x+1)</div><div class='step'>Critical: x=±1. f'(-1)=0: local max; f'(1)=0: local min</div><div class='step'>f'' = 6x; inflection at x=0</div><div class='step'>f(-1)=2 (local max), f(1)=-2 (local min), f(0)=0 (inflection)</div><div class='ans'>Local max at (-1,2), Local min at (1,-2), Inflection at (0,0)</div>"},
+  {q:"<span class='tag tag-blue'>Sketch</span> Describe the shape of f(x) = -x² + 4x - 3", a:"<div class='step'>f'' = -2 always, so always concave down</div><div class='step'>Opens downward parabola</div><div class='ans'>No inflection points; vertex is the maximum at x=2</div>"},
+  {q:"<span class='tag tag-green'>Concavity</span> What does f''(c) > 0 mean at a critical point?", a:"<div class='step'>The function is concave up at that point</div><div class='ans'>It's a LOCAL MINIMUM</div>"},
+  {q:"<span class='tag tag-green'>Concavity</span> What does f''(c) < 0 mean at a critical point?", a:"<div class='step'>The function is concave down at that point</div><div class='ans'>It's a LOCAL MAXIMUM</div>"},
+  {q:"<span class='tag tag-orange'>Concavity</span> f(x) = cos(x) on [0, 2π]. Inflection points?", a:"<div class='step'>f' = -sin x; f'' = -cos x</div><div class='step'>f''=0: cos x = 0 → x = π/2, 3π/2</div><div class='step'>Sign changes at both → inflection points</div><div class='ans'>Inflection at x = π/2 and 3π/2</div>"},
+  {q:"<span class='tag tag-orange'>Concavity</span> f(x) = x⁴ - 8x². Find all intervals of concavity.", a:"<div class='step'>f'' = 12x² - 16 = 4(3x²-4)</div><div class='step'>f''=0: x² = 4/3, x = ±2/√3</div><div class='step'>Concave down between the roots, up outside</div><div class='ans'>CU: (-∞, -2/√3) ∪ (2/√3, ∞); CD: (-2/√3, 2/√3)</div>"},
+  {q:"<span class='tag tag-blue'>Sketch</span> f(x) = 2x³ + 3x² - 12x. Find all critical points and concavity.", a:"<div class='step'>f' = 6x²+6x-12 = 6(x+2)(x-1). Critical: x=-2, x=1</div><div class='step'>f'' = 12x+6; inflection at x=-1/2</div><div class='step'>f''(-2) = -18 &lt; 0 → local max at x=-2</div><div class='step'>f''(1) = 18 > 0 → local min at x=1</div><div class='ans'>Local max at (-2, 20), Local min at (1, -7), Inflection at (-1/2, 13/2)</div>"},
+  {q:"<span class='tag tag-orange'>Concavity</span> f(x) = x/(x²+1). Find concavity.", a:"<div class='step'>f' = (1-x²)/(x²+1)²; f'' = (2x³-6x)/(x²+1)³ = 2x(x²-3)/(x²+1)³</div><div class='step'>f''=0: x=0, x=±√3</div><div class='step'>Sign analysis: Inflection at all three</div><div class='ans'>Inflection at x = -√3, 0, √3</div>"},
+  {q:"<span class='tag tag-green'>Concavity</span> f(x) = 5x + 2. Concavity?", a:"<div class='step'>f'' = 0. Linear functions have NO concavity.</div><div class='ans'>Neither concave up nor down; no inflection points.</div>"},
+  {q:"<span class='tag tag-blue'>Apply</span> A company's revenue R(t) = -t² + 10t + 50. Is revenue increasing faster or slower at t=3?", a:"<div class='step'>R' = -2t + 10; R'' = -2 < 0 always</div><div class='step'>R'' &lt; 0 means R' is decreasing (concave down)</div><div class='ans'>Revenue is still increasing at t=3 (R'(3)=4>0) but at a SLOWER rate (decelerating).</div>"},
+  // More concavity problems
+  {q:"<span class='tag tag-green'>Concavity</span> f(x) = 4x³ - 12x. Find inflection.", a:"<div class='step'>f'' = 24x; f''=0 at x=0</div><div class='ans'>Inflection at (0, 0)</div>"},
+  {q:"<span class='tag tag-orange'>Concavity</span> f(x) = x^(4/3). Inflection?", a:"<div class='step'>f'=(4/3)x^(1/3); f''=(4/9)x^(-2/3) ≥ 0, undefined at x=0</div><div class='step'>Sign does not change at x=0</div><div class='ans'>No inflection point.</div>"},
+  {q:"<span class='tag tag-green'>Concavity</span> If f''(x) > 0 on (-∞, 2) and f''(x) < 0 on (2, ∞), where is the inflection?", a:"<div class='ans'>At x = 2 (sign changes from + to -)</div>"},
+];
+
+// ============================================================
+// MAX/MIN PROBLEMS
+// ============================================================
+const maxminProbs = [
+  {q:"<span class='tag tag-green'>Critical Pts</span> Find critical points of f(x) = x³ - 3x", a:"<div class='step'>f'(x) = 3x² - 3 = 3(x-1)(x+1)</div><div class='step'>f'=0: x=1 and x=-1</div><div class='ans'>Critical points at x = -1 and x = 1</div>"},
+  {q:"<span class='tag tag-green'>Critical Pts</span> Find critical points of f(x) = x⁴ - 4x³", a:"<div class='step'>f'(x) = 4x³ - 12x² = 4x²(x-3)</div><div class='step'>f'=0: x=0 and x=3</div><div class='ans'>Critical points at x = 0 and x = 3</div>"},
+  {q:"<span class='tag tag-green'>First Deriv Test</span> f(x) = x² - 4x + 3. Classify critical point.", a:"<div class='step'>f' = 2x - 4 = 0 → x = 2</div><div class='step'>f'(1) = -2 < 0; f'(3) = 2 > 0. Sign: − to +</div><div class='ans'>x = 2 is a LOCAL MINIMUM. f(2) = -1</div>"},
+  {q:"<span class='tag tag-green'>First Deriv Test</span> f(x) = -x² + 6x. Classify critical point.", a:"<div class='step'>f' = -2x + 6 = 0 → x = 3</div><div class='step'>f'(2) = 2 > 0; f'(4) = -2 < 0. Sign: + to −</div><div class='ans'>x = 3 is a LOCAL MAXIMUM. f(3) = 9</div>"},
+  {q:"<span class='tag tag-orange'>Second Deriv Test</span> f(x) = x³ - 3x² + 3. Classify critical points.", a:"<div class='step'>f' = 3x² - 6x = 3x(x-2); critical: x=0, x=2</div><div class='step'>f'' = 6x - 6</div><div class='step'>f''(0) = -6 < 0 → LOCAL MAX; f''(2) = 6 > 0 → LOCAL MIN</div><div class='ans'>Local max at x=0 (f=3); Local min at x=2 (f=-1)</div>"},
+  {q:"<span class='tag tag-orange'>Second Deriv Test</span> f(x) = x⁴ - 8x². Classify all critical points.", a:"<div class='step'>f' = 4x³-16x = 4x(x²-4) = 4x(x-2)(x+2)</div><div class='step'>Critical: x=-2, 0, 2. f'' = 12x²-16</div><div class='step'>f''(-2)=32>0 (min); f''(0)=-16<0 (max); f''(2)=32>0 (min)</div><div class='ans'>Local max at (0,0); Local min at (±2,-16)</div>"},
+  {q:"<span class='tag tag-orange'>Absolute Extrema</span> f(x) = x³ - 3x on [-2, 3]", a:"<div class='step'>f' = 3x²-3 = 0 → x=±1. In [-2,3]: x=-1 and x=1</div><div class='step'>Evaluate: f(-2)=-2, f(-1)=2, f(1)=-2, f(3)=18</div><div class='ans'>Absolute MAX = 18 at x=3; Absolute MIN = -2 at x=-2 and x=1</div>"},
+  {q:"<span class='tag tag-orange'>Absolute Extrema</span> f(x) = x² - 2x on [0, 3]", a:"<div class='step'>f' = 2x-2 = 0 → x=1. Evaluate: f(0)=0, f(1)=-1, f(3)=3</div><div class='ans'>Absolute MAX = 3 at x=3; Absolute MIN = -1 at x=1</div>"},
+  {q:"<span class='tag tag-orange'>Absolute Extrema</span> f(x) = sin(x) on [0, 2π]", a:"<div class='step'>f' = cos x = 0 → x=π/2, 3π/2</div><div class='step'>f(0)=0, f(π/2)=1, f(3π/2)=-1, f(2π)=0</div><div class='ans'>Absolute MAX = 1 at x=π/2; Absolute MIN = -1 at x=3π/2</div>"},
+  {q:"<span class='tag tag-orange'>Optimization</span> Find two positive numbers whose sum is 20 and whose product is maximized.", a:"<div class='step'>Let numbers be x and 20-x</div><div class='step'>P = x(20-x) = 20x - x²</div><div class='step'>P' = 20 - 2x = 0 → x = 10</div><div class='step'>P'' = -2 < 0 (max confirmed)</div><div class='ans'>The two numbers are 10 and 10. Max product = 100.</div>"},
+  {q:"<span class='tag tag-orange'>Optimization</span> A farmer has 200m of fence. What dimensions of a rectangular field maximize area?", a:"<div class='step'>Perimeter: 2l + 2w = 200 → l + w = 100 → l = 100-w</div><div class='step'>Area = l·w = w(100-w) = 100w - w²</div><div class='step'>A' = 100 - 2w = 0 → w = 50, l = 50</div><div class='ans'>Square field: 50m × 50m. Max Area = 2500 m²</div>"},
+  {q:"<span class='tag tag-orange'>Optimization</span> A box with square base and no top has volume 4 m³. Minimize surface area.", a:"<div class='step'>Let base side = x, height = h. V = x²h = 4 → h = 4/x²</div><div class='step'>SA = x² + 4xh = x² + 4x(4/x²) = x² + 16/x</div><div class='step'>SA' = 2x - 16/x² = 0 → 2x³ = 16 → x = 2</div><div class='ans'>x = 2m (base), h = 1m (height). Min SA = 4 + 8 = 12 m²</div>"},
+  {q:"<span class='tag tag-orange'>Optimization</span> Find the point on y = x² closest to (0, 3).", a:"<div class='step'>Distance² = x² + (x²-3)² = x⁴ - 5x² + 9</div><div class='step'>d(D²)/dx = 4x³ - 10x = 2x(2x²-5) = 0</div><div class='step'>x = 0 or x = ±√(5/2). Check which gives min distance.</div><div class='step'>D² at x=0: 9. At x=±√(5/2): (5/2)+(5/2-3)² = 5/2+1/4 = 11/4 < 9</div><div class='ans'>Closest points at (±√(5/2), 5/2) ≈ (±1.58, 2.5)</div>"},
+  {q:"<span class='tag tag-blue'>Optimization</span> A cylinder has volume 500π cm³. Minimize surface area.", a:"<div class='step'>V = πr²h = 500π → h = 500/r²</div><div class='step'>SA = 2πr² + 2πrh = 2πr² + 1000π/r</div><div class='step'>SA' = 4πr - 1000π/r² = 0 → r³ = 250 → r = ∛250</div><div class='ans'>r = ∛250 ≈ 6.3 cm, h = 500/r² ≈ 12.6 cm = 2r</div>"},
+  {q:"<span class='tag tag-blue'>Optimization</span> A rectangle is inscribed in a circle of radius 5. Maximize the area.", a:"<div class='step'>Semicircle: x² + y² = 25. Area = 2x·2y = 4xy</div><div class='step'>A = 4x·√(25-x²); A'=0 at x = 5/√2</div><div class='ans'>Max area = 50 (square!); dimensions 5√2 × 5√2</div>"},
+  {q:"<span class='tag tag-green'>Critical Pts</span> f(x) = x·eˣ. Find and classify critical point.", a:"<div class='step'>f' = eˣ + x·eˣ = eˣ(1+x) = 0 → x = -1 (eˣ never 0)</div><div class='step'>f''(x) = eˣ(2+x); f''(-1) = e⁻¹(1) > 0</div><div class='ans'>Local minimum at x = -1, f(-1) = -1/e</div>"},
+  {q:"<span class='tag tag-green'>Critical Pts</span> f(x) = x - ln(x). Find and classify critical point.", a:"<div class='step'>f' = 1 - 1/x = 0 → x = 1</div><div class='step'>f'' = 1/x² > 0 always → concave up</div><div class='ans'>Local (and absolute) minimum at x=1, f(1) = 1</div>"},
+  {q:"<span class='tag tag-orange'>Absolute Extrema</span> f(x) = x⁴ - 2x² on [-2, 2]", a:"<div class='step'>f' = 4x³-4x = 4x(x²-1); critical: x=-1, 0, 1</div><div class='step'>f(-2)=8, f(-1)=-1, f(0)=0, f(1)=-1, f(2)=8</div><div class='ans'>Absolute MAX = 8 at x=±2; Absolute MIN = -1 at x=±1</div>"},
+  {q:"<span class='tag tag-orange'>Optimization</span> Find the minimum sum of a positive number and its reciprocal.", a:"<div class='step'>S = x + 1/x; S' = 1 - 1/x² = 0 → x² = 1 → x = 1</div><div class='step'>S'' = 2/x³ > 0 for x>0 → min</div><div class='ans'>Minimum sum = 1 + 1 = 2 (when x = 1)</div>"},
+  {q:"<span class='tag tag-blue'>Optimization</span> A wire 40 cm is cut into two pieces. One forms a square, one forms a circle. Minimize total area.", a:"<div class='step'>Square side=x/4 (perimeter x), Circle r=(40-x)/(2π)</div><div class='step'>A = (x/4)² + π((40-x)/(2π))² = x²/16 + (40-x)²/(4π)</div><div class='step'>dA/dx = x/8 - (40-x)/(2π) = 0 → x·π/4 = 40-x → x = 160/(π+4)</div><div class='ans'>x = 160/(π+4) ≈ 17.6 cm for square</div>"},
+  {q:"<span class='tag tag-orange'>First Deriv Test</span> f(x) = x^(2/3). Classify critical point at x=0.", a:"<div class='step'>f'(x) = (2/3)x^(-1/3) = 2/(3x^(1/3))</div><div class='step'>f' undefined at x=0. f'(-1)=-2/3&lt;0; f'(1)=2/3>0</div><div class='ans'>Local minimum at x=0, f(0)=0 (even though f' DNE!)</div>"},
+  {q:"<span class='tag tag-green'>Critical Pts</span> f(x) = |x|. Is x=0 a critical point?", a:"<div class='step'>f'(x) = 1 for x>0, -1 for x<0, UNDEFINED at x=0</div><div class='ans'>Yes! x=0 is a critical point (f' DNE). It's a local minimum.</div>"},
+  {q:"<span class='tag tag-blue'>Optimization</span> An open box is made from a 12×12 cm square by cutting equal squares from corners. Maximize volume.", a:"<div class='step'>Cut squares: side x. Box: l=w=12-2x, h=x</div><div class='step'>V = x(12-2x)² = x(144-48x+4x²) = 144x-48x²+4x³</div><div class='step'>V' = 144-96x+12x² = 12(12-8x+x²) = 12(x-2)(x-6) = 0</div><div class='step'>x=2 (valid) or x=6 (makes box with 0 area)</div><div class='ans'>x = 2 cm. Max volume = 2·8² = 128 cm³</div>"},
+  {q:"<span class='tag tag-orange'>Absolute Extrema</span> f(x) = 2sin(x) + cos(2x) on [0, π/2]", a:"<div class='step'>f' = 2cos x - 2sin(2x) = 2cos x - 4sin x cos x = 2cos x(1-2sin x) = 0</div><div class='step'>cos x=0 → x=π/2; or sin x=1/2 → x=π/6</div><div class='step'>f(0)=1, f(π/6)=3/2, f(π/2)=1</div><div class='ans'>Absolute max = 3/2 at x=π/6; Absolute min = 1 at x=0 and x=π/2</div>"},
+];
+
+// ============================================================
+// RELATED RATES PROBLEMS
+// ============================================================
+const rrProbs = [
+  {q:"<span class='tag tag-green'>Basic</span> Area of a circle: A = πr². If dr/dt = 3 cm/s, find dA/dt when r = 5 cm.", a:"<div class='step'>Differentiate: dA/dt = 2πr · dr/dt</div><div class='step'>= 2π(5)(3)</div><div class='ans'>= 30π cm²/s ≈ 94.25 cm²/s</div>"},
+  {q:"<span class='tag tag-green'>Basic</span> Volume of sphere: V = (4/3)πr³. If dV/dt = 10 cm³/s, find dr/dt when r = 2 cm.", a:"<div class='step'>dV/dt = 4πr² · dr/dt</div><div class='step'>10 = 4π(4) · dr/dt</div><div class='ans'>dr/dt = 10/(16π) = 5/(8π) cm/s</div>"},
+  {q:"<span class='tag tag-green'>Basic</span> Circumference C = 2πr. If dr/dt = 0.5 m/s, find dC/dt.", a:"<div class='step'>dC/dt = 2π · dr/dt = 2π(0.5)</div><div class='ans'>= π m/s</div>"},
+  {q:"<span class='tag tag-green'>Pythagorean</span> A 10m ladder leans against a wall. If the bottom slides away at 2 m/s, how fast is the top sliding down when the bottom is 6m from the wall?", a:"<div class='step'>x² + y² = 100. At x=6: y = √(100-36) = 8</div><div class='step'>2x(dx/dt) + 2y(dy/dt) = 0</div><div class='step'>2(6)(2) + 2(8)(dy/dt) = 0</div><div class='step'>24 + 16(dy/dt) = 0</div><div class='ans'>dy/dt = -3/2 = -1.5 m/s (top slides DOWN)</div>"},
+  {q:"<span class='tag tag-green'>Pythagorean</span> Two cars leave an intersection. Car A goes north at 60 mph, Car B goes east at 80 mph. How fast is the distance between them increasing after 1 hour?", a:"<div class='step'>After 1hr: A is 60mi north, B is 80mi east</div><div class='step'>z² = x² + y²; dz/dt: z·dz/dt = x·dx/dt + y·dy/dt</div><div class='step'>z = √(3600+6400) = 100mi</div><div class='step'>100·dz/dt = 80(80) + 60(60) = 6400+3600 = 10000</div><div class='ans'>dz/dt = 100 mph</div>"},
+  {q:"<span class='tag tag-orange'>Water Tank</span> A conical tank (vertex down) has radius 4m, height 10m. Water drains at 2 m³/min. Find dh/dt when h = 6m.", a:"<div class='step'>By similar triangles: r/h = 4/10 → r = 2h/5</div><div class='step'>V = (1/3)πr²h = (1/3)π(2h/5)²h = 4πh³/75</div><div class='step'>dV/dt = (4π/75)·3h²·dh/dt = (4πh²/25)·dh/dt</div><div class='step'>-2 = 4π(36)/25 · dh/dt</div><div class='ans'>dh/dt = -50/(288π) = -25/(144π) m/min ≈ -0.055 m/min</div>"},
+  {q:"<span class='tag tag-orange'>Water Tank</span> A cylindrical tank (radius 3m) fills at 9π m³/min. Find dh/dt.", a:"<div class='step'>V = πr²h = 9πh</div><div class='step'>dV/dt = 9π·dh/dt</div><div class='step'>9π = 9π·dh/dt</div><div class='ans'>dh/dt = 1 m/min (constant, regardless of height!)</div>"},
+  {q:"<span class='tag tag-orange'>Shadow</span> A 6ft person walks away from a 15ft lamppost at 5 ft/s. How fast is the shadow lengthening?", a:"<div class='step'>Let x = distance from post to person, s = shadow length</div><div class='step'>Similar triangles: 15/(x+s) = 6/s → 15s = 6x+6s → 9s = 6x → s = 2x/3</div><div class='step'>ds/dt = (2/3)·dx/dt = (2/3)·5</div><div class='ans'>ds/dt = 10/3 ft/s ≈ 3.33 ft/s</div>"},
+  {q:"<span class='tag tag-orange'>Shadow</span> In the previous problem, how fast is the tip of the shadow moving?", a:"<div class='step'>Tip position = x + s = x + 2x/3 = 5x/3</div><div class='step'>d(x+s)/dt = (5/3)·dx/dt = (5/3)(5)</div><div class='ans'>= 25/3 ft/s ≈ 8.33 ft/s</div>"},
+  {q:"<span class='tag tag-orange'>Angle</span> A kite is 100m high and moving horizontally at 4 m/s. Find the rate at which the angle the string makes with the horizontal is decreasing when 200m of string is out.", a:"<div class='step'>Let θ = angle, x = horizontal distance, y=100 (constant)</div><div class='step'>tan θ = 100/x; sec²θ·dθ/dt = -100/x²·dx/dt</div><div class='step'>When string=200: x=√(200²-100²)=100√3; tan θ=1/√3→sec²θ=4/3</div><div class='step'>(4/3)dθ/dt = -100/(30000)·4 = -1/75</div><div class='ans'>dθ/dt = -1/100 rad/s</div>"},
+  {q:"<span class='tag tag-blue'>Expanding</span> A stone dropped in water creates circular ripples expanding at 3 m/s. Find the rate at which the area increases when radius = 5m.", a:"<div class='step'>dA/dt = 2πr · dr/dt = 2π(5)(3)</div><div class='ans'>= 30π m²/s</div>"},
+  {q:"<span class='tag tag-blue'>Cube</span> The side of a cube increases at 2 cm/s. Find the rate of change of volume when s = 5 cm.", a:"<div class='step'>V = s³; dV/dt = 3s²·ds/dt = 3(25)(2)</div><div class='ans'>= 150 cm³/s</div>"},
+  {q:"<span class='tag tag-blue'>Cube</span> Same cube — find rate of change of surface area when s = 5cm.", a:"<div class='step'>SA = 6s²; dSA/dt = 12s·ds/dt = 12(5)(2)</div><div class='ans'>= 120 cm²/s</div>"},
+  {q:"<span class='tag tag-orange'>Balloon</span> A spherical balloon inflates so volume increases at 20 cm³/s. Find the rate the radius increases when r = 2 cm.", a:"<div class='step'>dV/dt = 4πr²·dr/dt</div><div class='step'>20 = 4π(4)·dr/dt</div><div class='ans'>dr/dt = 20/(16π) = 5/(4π) cm/s</div>"},
+  {q:"<span class='tag tag-blue'>Rectangle</span> A rectangle's length increases at 3 cm/s and width decreases at 2 cm/s. Find rate of area change when l=8, w=5.", a:"<div class='step'>A = lw; dA/dt = l'w + lw' = 3(5) + 8(-2)</div><div class='ans'>= 15 - 16 = -1 cm²/s (decreasing!)</div>"},
+  {q:"<span class='tag tag-orange'>Pythagorean</span> A 13m ladder leans against a wall. The top slides down at 2 m/s. How fast does the bottom move out when the top is 5m from the ground?", a:"<div class='step'>x² + y² = 169. At y=5: x = 12</div><div class='step'>2x(dx/dt) + 2y(dy/dt) = 0</div><div class='step'>2(12)(dx/dt) + 2(5)(-2) = 0</div><div class='step'>24(dx/dt) = 20</div><div class='ans'>dx/dt = 5/6 m/s</div>"},
+  {q:"<span class='tag tag-blue'>Angle</span> A police car 0.25 km from a straight road speeds parallel to it at 80 km/h. Find the rate the angle between the beam and the road changes when the car is 0.25 km past the closest point.", a:"<div class='step'>tan θ = x/0.25 where x is how far past closest point</div><div class='step'>sec²θ·dθ/dt = (1/0.25)·dx/dt</div><div class='step'>At x=0.25: tan θ=1→θ=π/4→sec²θ=2</div><div class='step'>2·dθ/dt = 80/0.25 = 320</div><div class='ans'>dθ/dt = 160 rad/hr</div>"},
+  {q:"<span class='tag tag-orange'>Trapezoid</span> Water fills a trough with trapezoidal cross-section (bottom 2m, top 4m, depth 3m) at 2 m³/min. Find dh/dt when h = 1m.", a:"<div class='step'>Width at height h: w = 2 + (2/3)h (linear, from 2 to 4 over depth 3)</div><div class='step'>Area(h) = (1/2)(2 + w)h = (1/2)(2 + 2+2h/3)h = (1/2)(4+2h/3)h = 2h + h²/3</div><div class='step'>dV/dt = (2 + 2h/3)·dh/dt. At h=1: (2+2/3) = 8/3</div><div class='step'>2 = (8/3)·dh/dt</div><div class='ans'>dh/dt = 3/4 m/min</div>"},
+  {q:"<span class='tag tag-blue'>Triangle</span> Two sides of a triangle are 4cm and 5cm, and the included angle increases at 0.1 rad/s. Find dA/dt when angle = π/3.", a:"<div class='step'>A = (1/2)·4·5·sin θ = 10 sin θ</div><div class='step'>dA/dt = 10 cos θ · dθ/dt = 10·cos(π/3)·0.1 = 10·(1/2)·0.1</div><div class='ans'>= 0.5 cm²/s</div>"},
+  {q:"<span class='tag tag-blue'>Astronomy</span> Earth orbits sun at ~30 km/s in a nearly circular orbit (r ≈ 1.5×10⁸ km). Find dA/dt swept by Earth (Kepler: area swept per unit time = constant).", a:"<div class='step'>dA/dt = (1/2)r² dθ/dt. v = r·dθ/dt → dθ/dt = v/r = 30/(1.5×10⁸)</div><div class='step'>dA/dt = (1/2)(1.5×10⁸)² · 30/(1.5×10⁸) = (1/2)(1.5×10⁸)·30</div><div class='ans'>≈ 2.25 × 10⁹ km²/s</div>"},
+  // More related rates
+  {q:"<span class='tag tag-green'>Basic</span> Rectangle: A = lw. If l and w both increase at 2 cm/s, find dA/dt when l=10, w=6.", a:"<div class='step'>dA/dt = w·dl/dt + l·dw/dt = 6(2) + 10(2)</div><div class='ans'>= 32 cm²/s</div>"},
+  {q:"<span class='tag tag-green'>Basic</span> V = x³. If dV/dt = 9 cm³/s, find dx/dt when x = 3.", a:"<div class='step'>dV/dt = 3x²·dx/dt → 9 = 27·dx/dt</div><div class='ans'>dx/dt = 1/3 cm/s</div>"},
+  {q:"<span class='tag tag-orange'>Distance</span> An object moves along y = √x. When x = 4 and dx/dt = 3, find dy/dt.", a:"<div class='step'>dy/dt = (1/2)x^(-1/2)·dx/dt = (1/(2√4))·3 = (1/4)·3</div><div class='ans'>= 3/4 units/s</div>"},
+  {q:"<span class='tag tag-orange'>Pythagorean</span> A baseball diamond is 90ft square. Player runs from 1st to 2nd at 24 ft/s. How fast is distance from home plate changing when 30ft from 1st base?", a:"<div class='step'>Let x = dist from 1st base. Dist from home: d² = 90² + x² (as runner goes past 1st)</div><div class='step'>Wait: player is between 1st and 2nd. dist from home² = (90-... use coordinates.</div><div class='step'>Home at (0,0), 1st at (90,0), 2nd at (90,90). Player at (90,x) where x is dist past 1st.</div><div class='step'>d² = 90² + x²; 2d·dd/dt = 2x·dx/dt</div><div class='step'>At x=30: d=√(8100+900)=√9000=30√10</div><div class='step'>2(30√10)dd/dt = 2(30)(24)</div><div class='ans'>dd/dt = 24/√10 ≈ 7.59 ft/s</div>"},
+  {q:"<span class='tag tag-blue'>Sphere melting</span> Spherical snowball melts so SA decreases at 1 cm²/min. Find dV/dt when r = 5cm.", a:"<div class='step'>SA = 4πr². d(SA)/dt = 8πr·dr/dt = -1</div><div class='step'>dr/dt = -1/(8πr) = -1/(40π)</div><div class='step'>dV/dt = 4πr²·dr/dt = 4π(25)·(-1/(40π)) = -100/(40)</div><div class='ans'>dV/dt = -5/2 = -2.5 cm³/min</div>"},
+  {q:"<span class='tag tag-orange'>Boyle's Law</span> PV = k (constant). P = 100 Pa, V = 2 m³, dP/dt = 5 Pa/s. Find dV/dt.", a:"<div class='step'>P·dV/dt + V·dP/dt = 0</div><div class='step'>100·dV/dt + 2(5) = 0</div><div class='ans'>dV/dt = -10/100 = -0.1 m³/s</div>"},
+  {q:"<span class='tag tag-orange'>Trig</span> A rocket launches vertically. Tracking station is 2 km away. When elevation angle θ = 60°, dθ/dt = 2°/s = π/90 rad/s. Find the rocket's vertical speed.", a:"<div class='step'>tan θ = h/2 → h = 2 tan θ</div><div class='step'>dh/dt = 2sec²θ·dθ/dt</div><div class='step'>At θ=60°: sec²60° = (1/cos60°)² = (2)² = 4</div><div class='step'>dh/dt = 2·4·(π/90)</div><div class='ans'>= 8π/90 = 4π/45 km/s ≈ 0.28 km/s = 280 m/s</div>"},
+];
+
+// ============================================================
+// FLASHCARD DATA
+// ============================================================
+const allCards = [
+  // Fundamentals
+  {cat:'fundamentals', term:'Power Rule', def:'d/dx[xⁿ] = n·xⁿ⁻¹\nExample: d/dx[x⁵] = 5x⁴'},
+  {cat:'fundamentals', term:'Difference of Squares', def:'a² - b² = (a+b)(a-b)\nExample: x²-9 = (x+3)(x-3)'},
+  {cat:'fundamentals', term:'sin²θ + cos²θ', def:'= 1\n(Pythagorean Identity — MEMORIZE!)'},
+  {cat:'fundamentals', term:'1 + tan²θ', def:'= sec²θ\n(Derived by dividing sin²+cos²=1 by cos²θ)'},
+  {cat:'fundamentals', term:'sin(30°) = sin(π/6)', def:'= 1/2'},
+  {cat:'fundamentals', term:'cos(60°) = cos(π/3)', def:'= 1/2'},
+  {cat:'fundamentals', term:'tan(45°) = tan(π/4)', def:'= 1'},
+  {cat:'fundamentals', term:'sin(2θ)', def:'= 2 sin θ cos θ (Double angle formula)'},
+  {cat:'fundamentals', term:'x^(m/n)', def:'= ⁿ√(xᵐ)\nFractional exponent = root'},
+  {cat:'fundamentals', term:'Rationalize (√a + √b)', def:'Multiply by conjugate: (√a - √b)/(√a - √b)\nResult: (a - b) in denominator'},
+  // Limits
+  {cat:'limits', term:'Definition of Limit', def:'lim[x→a] f(x) = L\nmeans: as x approaches a, f(x) approaches L'},
+  {cat:'limits', term:'Two-Sided Limit Exists When...', def:'Left limit = Right limit\nlim[x→a⁻] f(x) = lim[x→a⁺] f(x)'},
+  {cat:'limits', term:'lim[x→0] sin(x)/x', def:'= 1 ← MEMORIZE THIS!\n(Special trig limit)'},
+  {cat:'limits', term:'lim[x→0] (1-cos x)/x', def:'= 0 (Special trig limit)'},
+  {cat:'limits', term:'Indeterminate Forms', def:'0/0, ∞/∞, 0·∞, ∞-∞, 0⁰, 1^∞\nThese require more work (factor, rationalize, or L\'Hôpital)'},
+  {cat:'limits', term:'L\'Hôpital\'s Rule', def:'If lim f/g = 0/0 or ∞/∞:\nlim f(x)/g(x) = lim f\'(x)/g\'(x)'},
+  {cat:'limits', term:'Squeeze Theorem', def:'If g(x) ≤ f(x) ≤ h(x) and\nlim g = lim h = L, then lim f = L'},
+  {cat:'limits', term:'lim[x→∞] 1/xⁿ (n>0)', def:'= 0\n(Powers of x in denominator go to zero)'},
+  {cat:'limits', term:'Horizontal Asymptote', def:'y = L if lim[x→±∞] f(x) = L\n(Found by evaluating the limit at infinity)'},
+  {cat:'limits', term:'Vertical Asymptote', def:'x = a if lim[x→a] f(x) = ±∞\n(Denominator → 0, numerator ≠ 0)'},
+  // Derivatives
+  {cat:'derivatives', term:'Product Rule', def:'d/dx[f·g] = f\'g + fg\'\n"first d-second plus second d-first"'},
+  {cat:'derivatives', term:'Quotient Rule', def:'d/dx[f/g] = (f\'g - fg\')/g²\n"low d-high minus high d-low over low squared"'},
+  {cat:'derivatives', term:'Chain Rule', def:'d/dx[f(g(x))] = f\'(g(x))·g\'(x)\n"derivative of outside × derivative of inside"'},
+  {cat:'derivatives', term:'d/dx[sin x]', def:'= cos x\n(Co-functions get negative → cos → -sin)'},
+  {cat:'derivatives', term:'d/dx[cos x]', def:'= -sin x\n(Negative! Don\'t forget!)'},
+  {cat:'derivatives', term:'d/dx[tan x]', def:'= sec²x'},
+  {cat:'derivatives', term:'d/dx[eˣ]', def:'= eˣ (It\'s its own derivative!)'},
+  {cat:'derivatives', term:'d/dx[ln x]', def:'= 1/x'},
+  {cat:'derivatives', term:'Implicit Differentiation', def:'Differentiate both sides w.r.t. x;\nd/dx[y] = dy/dx (chain rule adds dy/dx every time you differentiate y)'},
+  {cat:'derivatives', term:'d/dx[sec x]', def:'= sec x · tan x'},
+  {cat:'derivatives', term:'d/dx[csc x]', def:'= -csc x · cot x'},
+  {cat:'derivatives', term:'d/dx[cot x]', def:'= -csc²x'},
+  // Concavity
+  {cat:'concavity', term:'Concave Up', def:'f\'\'(x) > 0\nLike a bowl (∪). Tangent lines lie BELOW the curve.'},
+  {cat:'concavity', term:'Concave Down', def:'f\'\'(x) < 0\nLike a hill (∩). Tangent lines lie ABOVE the curve.'},
+  {cat:'concavity', term:'Inflection Point', def:'Where concavity CHANGES sign.\nNecessary: f\'\'(c) = 0 or DNE\nNot sufficient: sign must actually change!'},
+  {cat:'concavity', term:'Second Derivative Test for Extrema', def:'If f\'(c) = 0:\nf\'\'(c) > 0 → Local MIN\nf\'\'(c) < 0 → Local MAX\nf\'\'(c) = 0 → Inconclusive'},
+  // Max/Min
+  {cat:'maxmin', term:'Critical Point', def:'c is critical if f\'(c) = 0 OR f\'(c) is undefined.\nAll local extrema occur at critical points!'},
+  {cat:'maxmin', term:'First Derivative Test', def:'At critical point c:\nf\' changes + to − → Local MAX\nf\' changes − to + → Local MIN\nNo sign change → Neither'},
+  {cat:'maxmin', term:'Extreme Value Theorem', def:'If f is continuous on [a,b], then f has\nABSOLUTE max and min on [a,b].\nCheck: all critical pts in (a,b) + endpoints!'},
+  {cat:'maxmin', term:'Optimization Steps', def:'1. Define variables & draw diagram\n2. Write objective function\n3. Use constraint to reduce to 1 variable\n4. Differentiate & set = 0\n5. Verify it\'s max/min'},
+  // Related Rates
+  {cat:'rr', term:'Related Rates Strategy', def:'1. Draw & label\n2. Identify given rates & wanted rate\n3. Write equation relating variables\n4. Differentiate w.r.t. t\n5. Substitute known values\n6. Solve'},
+  {cat:'rr', term:'dA/dt for Circle', def:'A = πr² → dA/dt = 2πr·(dr/dt)'},
+  {cat:'rr', term:'dV/dt for Sphere', def:'V = (4/3)πr³ → dV/dt = 4πr²·(dr/dt)'},
+  {cat:'rr', term:'Pythagorean Related Rate', def:'x² + y² = c²\n→ 2x(dx/dt) + 2y(dy/dt) = 0\n(c is constant; if c changes, differentiate too!)'},
+  {cat:'rr', term:'Conical Tank (r/h = k)', def:'Use similar triangles to express r in terms of h,\nthen write V in terms of h only,\nthen differentiate!'},
+  {cat:'rr', term:'CRITICAL: When to substitute values', def:'AFTER differentiating!\nNever plug in values before you differentiate.\nValues are only substituted into the DIFFERENTIATED equation.'},
+];
+
+let currentCards = [...allCards];
+let cardIndex = 0;
+let cardFlipped = false;
+
+function renderFlashcards() {
+  updateCard();
+}
+function updateCard() {
+  if (currentCards.length === 0) return;
+  const c = currentCards[cardIndex];
+  document.getElementById('cardTerm').textContent = c.term;
+  document.getElementById('cardDef').textContent = c.def;
+  document.getElementById('fcCounter').textContent = (cardIndex+1) + ' / ' + currentCards.length;
+  const fc = document.getElementById('flashcard');
+  fc.classList.remove('flipped');
+  cardFlipped = false;
+}
+function flipCard() {
+  const fc = document.getElementById('flashcard');
+  fc.classList.toggle('flipped');
+  cardFlipped = !cardFlipped;
+}
+function nextCard() {
+  cardIndex = (cardIndex + 1) % currentCards.length;
+  updateCard();
+}
+function prevCard() {
+  cardIndex = (cardIndex - 1 + currentCards.length) % currentCards.length;
+  updateCard();
+}
+function shuffleCards() {
+  currentCards.sort(() => Math.random() - 0.5);
+  cardIndex = 0;
+  updateCard();
+}
+function resetCards() {
+  cardIndex = 0;
+  updateCard();
+}
+function filterCards(cat, btn) {
+  document.querySelectorAll('#fcFilter .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentCards = cat === 'all' ? [...allCards] : allCards.filter(c => c.cat === cat);
+  cardIndex = 0;
+  updateCard();
+}
+
+// ============================================================
+// QUIZ MODE
+// ============================================================
+const quizBank = [
+  // Limits
+  {topic:'limits', q:'What is lim[x→3] (x² - 9)/(x - 3)?', opts:['3', '6', '0', 'DNE'], ans:1, exp:'Factor: (x-3)(x+3)/(x-3) = x+3. At x=3: 6.'},
+  {topic:'limits', q:'What is lim[x→0] sin(5x)/x?', opts:['1', '5', '0', 'DNE'], ans:1, exp:'Multiply by 5/5: 5·sin(5x)/(5x) → 5·1 = 5.'},
+  {topic:'limits', q:'What is lim[x→∞] (3x² + 1)/(x² + 2)?', opts:['3', '1', '0', '∞'], ans:0, exp:'Same degree: ratio of leading coefficients = 3/1 = 3.'},
+  {topic:'limits', q:'When does lim[x→a] f(x) = f(a)?', opts:['Always', 'When f is continuous at a', 'When f(a) is defined', 'Never'], ans:1, exp:'A function f is continuous at a if the limit equals the function value.'},
+  {topic:'limits', q:'lim[x→0⁺] ln(x) = ?', opts:['0', '1', '+∞', '-∞'], ans:3, exp:'ln approaches -∞ as x approaches 0 from the right.'},
+  {topic:'limits', q:'What is the Squeeze Theorem used for?', opts:['Factoring limits', 'Finding limits when direct evaluation fails and the function is bounded', 'L\'Hôpital\'s rule', 'Chain rule'], ans:1, exp:'Squeeze theorem: if g ≤ f ≤ h and lim g = lim h = L, then lim f = L.'},
+  {topic:'limits', q:'lim[x→0] (eˣ - 1)/x = ?', opts:['0', '1', 'e', 'DNE'], ans:1, exp:'L\'Hôpital: eˣ/1 → 1. Or: this is the definition of e^x derivative at 0.'},
+  {topic:'limits', q:'lim[x→2] 1/(x-2) = ?', opts:['∞', '-∞', '0', 'DNE'], ans:3, exp:'Left limit = -∞, right limit = +∞. Not equal, so DNE.'},
+  // Derivatives
+  {topic:'derivatives', q:'d/dx[sin x] = ?', opts:['cos x', '-cos x', '-sin x', 'sin x'], ans:0, exp:'Basic derivative: d/dx[sin x] = cos x.'},
+  {topic:'derivatives', q:'d/dx[x⁴] = ?', opts:['4x⁵', '4x³', '3x⁴', 'x³'], ans:1, exp:'Power rule: d/dx[xⁿ] = nxⁿ⁻¹. So 4x³.'},
+  {topic:'derivatives', q:'d/dx[eˣ] = ?', opts:['eˣ⁻¹', 'eˣ', 'xeˣ⁻¹', '1/eˣ'], ans:1, exp:'eˣ is its own derivative!'},
+  {topic:'derivatives', q:'Using chain rule: d/dx[(x²+1)⁵] = ?', opts:['5(x²+1)⁴', '10x(x²+1)⁴', '5x(x²+1)⁴', '10(x²+1)⁴'], ans:1, exp:'Chain rule: 5(x²+1)⁴ · 2x = 10x(x²+1)⁴.'},
+  {topic:'derivatives', q:'Product rule: d/dx[f·g] = ?', opts:["f'g - fg'", "f'g' + fg", "f'g + fg'", "(fg)²"], ans:2, exp:'"First d-second plus second d-first"'},
+  {topic:'derivatives', q:'Quotient rule: d/dx[f/g] = ?', opts:["(f'g + fg')/g²", "(f'g - fg')/g²", "(fg' - gf')/g²", "f'/g'"], ans:1, exp:'"Low d-high minus high d-low, over low squared"'},
+  {topic:'derivatives', q:'d/dx[ln x] = ?', opts:['ln x', '1/x', 'x·ln x', 'eˣ'], ans:1, exp:'d/dx[ln x] = 1/x'},
+  {topic:'derivatives', q:'d/dx[tan x] = ?', opts:['sec²x', '-csc²x', 'sec x·tan x', '-sec²x'], ans:0, exp:'d/dx[tan x] = sec²x'},
+  // Concavity
+  {topic:'concavity', q:'If f\'\'(x) > 0, the function is:', opts:['Concave down', 'Decreasing', 'Concave up', 'At a maximum'], ans:2, exp:'f\'\'(x) > 0 means concave up (bowl shape).'},
+  {topic:'concavity', q:'An inflection point occurs when:', opts:["f'(x) = 0", "f''(x) = 0 and sign of f'' changes", "f(x) = 0", "f''(x) = 0 always"], ans:1, exp:'Inflection: f\'\'=0 or DNE AND the sign must change.'},
+  {topic:'concavity', q:'If f\'\'(c) < 0 at a critical point c, then:', opts:['Local minimum', 'Inflection point', 'Local maximum', 'Inconclusive'], ans:2, exp:'Second derivative test: f\'\'(c) < 0 → concave down → local MAX.'},
+  {topic:'concavity', q:'f(x) = x⁴: how many inflection points?', opts:['1 at x=0', '2', '0', 'Infinite'], ans:2, exp:'f\'\'=12x² ≥ 0 always. Sign does NOT change at x=0, so NO inflection.'},
+  // Max/Min
+  {topic:'maxmin', q:'A critical point is where:', opts:["f(c) = 0", "f'(c) = 0 or f'(c) DNE", "f''(c) = 0", "f'(c) > 0"], ans:1, exp:'Critical points are where f\' = 0 or f\' is undefined.'},
+  {topic:'maxmin', q:'First derivative test: if f\' changes from + to − at c, then c is a:', opts:['Local minimum', 'Critical point only', 'Inflection point', 'Local maximum'], ans:3, exp:'+ to − means the function was rising then falling → local MAX.'},
+  {topic:'maxmin', q:'To find absolute extrema on [a,b], you must:', opts:['Find f\'=0 only', 'Check endpoints only', 'Evaluate f at critical points AND endpoints', 'Use second derivative test'], ans:2, exp:'Closed interval method: evaluate at all critical pts + both endpoints.'},
+  {topic:'maxmin', q:'f(x) = x² - 4x has a minimum at:', opts:['x = 0', 'x = 2', 'x = 4', 'x = -2'], ans:1, exp:'f\' = 2x - 4 = 0 → x = 2. f\'\'=2 > 0 → minimum.'},
+];
+let quizTopic = 'all';
+let quizQuestions = [];
+let quizAnswered = 0;
+let quizCorrect = 0;
+
+function setQuizTopic(t, btn) {
+  quizTopic = t;
+  document.querySelectorAll('#tab7 .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function startQuiz() {
+  let pool = quizTopic === 'all' ? quizBank : quizBank.filter(q => q.topic === quizTopic);
+  pool = [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(10, pool.length));
+  quizQuestions = pool;
+  quizAnswered = 0;
+  quizCorrect = 0;
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizScore').style.display = 'none';
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  pool.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.id = 'qcard-' + i;
+    card.innerHTML = `<div class="quiz-q">${i+1}. ${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o,j) => `<button class="quiz-opt" onclick="answerQ(${i},${j})">${String.fromCharCode(65+j)}. ${o}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb-${i}"></div>`;
+    area.appendChild(card);
+  });
+}
+function answerQ(qIdx, optIdx) {
+  const q = quizQuestions[qIdx];
+  const card = document.getElementById('qcard-' + qIdx);
+  const opts = card.querySelectorAll('.quiz-opt');
+  opts.forEach(o => { o.disabled = true; });
+  const fb = document.getElementById('qfb-' + qIdx);
+  if (optIdx === q.ans) {
+    opts[optIdx].classList.add('correct');
+    fb.textContent = '✓ Correct! ' + q.exp;
+    fb.className = 'quiz-feedback show correct';
+    quizCorrect++;
+  } else {
+    opts[optIdx].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.textContent = '✗ Incorrect. ' + q.exp;
+    fb.className = 'quiz-feedback show wrong';
+  }
+  quizAnswered++;
+  if (quizAnswered === quizQuestions.length) {
+    setTimeout(() => {
+      const scoreEl = document.getElementById('quizFinalScore');
+      scoreEl.textContent = `Final Score: ${quizCorrect} / ${quizQuestions.length} (${Math.round(quizCorrect/quizQuestions.length*100)}%)`;
+      document.getElementById('quizResult').style.display = 'block';
+    }, 800);
+  }
+}
+
+// ============================================================
+// INIT: BUILD ALL PROBLEM SETS
+// ============================================================
+window.onload = function() {
+  buildProblems('alg-probs', algProbs);
+  buildProblems('factor-probs', factorProbs);
+  buildProblems('simp-probs', simpProbs);
+  buildProblems('trig-probs', trigProbs);
+  buildProblems('limit-probs', limitProbs);
+  buildProblems('deriv-probs', derivProbs);
+  buildProblems('concavity-probs', concavProbs);
+  buildProblems('maxmin-probs', maxminProbs);
+  buildProblems('rr-probs', rrProbs);
+  renderFlashcards();
+  trackProgress();
+};
+</script>
+</body>
+</html>
